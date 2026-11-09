@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
-  Antenna,
   ChevronDown,
-  Cpu,
   Radio,
   Shield,
-  Trophy,
-  Wifi,
   Zap,
 } from "lucide-react";
 
 // Frame Sequence Configuration
-// If you extract frames into public/trackvision-frames/frame-001.jpg ... frame-120.jpg,
-// adjust FRAME_COUNT and FOLDER accordingly.
 const FRAME_COUNT = 120;
 const FOLDER = "trackvision-frames";
-const MIDDLE = Math.round((FRAME_COUNT - 1) / 2);
 
 interface TrackVisionHeroProps {
   onEnterArena?: () => void;
@@ -29,13 +22,17 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const images = useRef<(HTMLImageElement | null)[]>([]);
-  const frameRef = useRef(MIDDLE);
-  const [currentFrame, setCurrentFrame] = useState(MIDDLE);
-  const [hasFrames, setHasFrames] = useState(false);
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
 
-  // 1. Canvas & Frame Engine
+  // Telemetry DOM Refs for ZERO React re-render overhead
+  const scrubTopRef = useRef<HTMLSpanElement>(null);
+  const frameNumberRef = useRef<HTMLDivElement>(null);
+  const scrubBarRef = useRef<HTMLDivElement>(null);
+
+  // Smooth Interpolation Refs
+  const targetRatioRef = useRef(0.5);
+  const smoothRatioRef = useRef(0.5);
+  const hasFramesRef = useRef(false);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const section = sectionRef.current;
@@ -46,85 +43,132 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Dynamic cover resize
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      renderCurrent();
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    function renderCurrent() {
-      const idx = frameRef.current;
-      const img = images.current[idx];
-
+    const renderFrame = (idx: number) => {
+      let img = images.current[idx];
+      if (!img || !img.complete || img.naturalWidth === 0) {
+        img = images.current[0];
+      }
       if (img && img.complete && img.naturalWidth > 0) {
         const { naturalWidth: iw, naturalHeight: ih } = img;
-        const cw = canvas!.width;
-        const ch = canvas!.height;
+        const cw = canvas.width;
+        const ch = canvas.height;
         const s = Math.max(cw / iw, ch / ih);
-        ctx!.clearRect(0, 0, cw, ch);
-        ctx!.drawImage(img, (cw - iw * s) / 2, (ch - ih * s) / 2, iw * s, ih * s);
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.drawImage(img, (cw - iw * s) / 2, (ch - ih * s) / 2, iw * s, ih * s);
       }
-    }
+    };
 
-    // Attempt to preload frames if available
+    // Dynamic cover resize
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      const currentIdx = Math.round(smoothRatioRef.current * (FRAME_COUNT - 1));
+      renderFrame(currentIdx);
+    };
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    // Preload image frames if available
     images.current = new Array(FRAME_COUNT).fill(null);
-    let successfulLoads = 0;
 
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
       img.src = `/${FOLDER}/frame-${String(i + 1).padStart(3, "0")}.jpg`;
       img.onload = () => {
         images.current[i] = img;
-        successfulLoads++;
-        setLoadedCount(successfulLoads);
-
-        if (successfulLoads > 5 && !hasFrames) {
-          setHasFrames(true);
-        }
-        if (i === frameRef.current) {
-          renderCurrent();
+        if (i === 0 || !hasFramesRef.current) {
+          hasFramesRef.current = true;
+          if (videoRef.current) {
+            videoRef.current.style.display = "none";
+            videoRef.current.pause();
+          }
+          canvas.style.display = "block";
+          renderFrame(i === 0 ? 0 : Math.round(smoothRatioRef.current * (FRAME_COUNT - 1)));
         }
       };
       img.onerror = () => {
-        // Frames directory not yet populated; video background fallback remains active
+        // Fallback video remains active
       };
     }
 
-    // 2. High-precision mouse movement frame scrubber
+    // ── High-speed Mousemove (Target assignment only — 0ms overhead) ──
     const onMove = (e: MouseEvent) => {
       if (!section) return;
       const r = section.getBoundingClientRect();
       if (e.clientY < r.top || e.clientY > r.bottom) return;
 
       const ratioX = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-      const ratioY = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
-      setMousePos({ x: ratioX, y: ratioY });
-
-      // Frame selection across horizontal axis
-      const idx = Math.round(ratioX * (FRAME_COUNT - 1));
-      if (idx !== frameRef.current) {
-        frameRef.current = idx;
-        setCurrentFrame(idx);
-        renderCurrent();
-      }
-
-      // If video fallback is active, scrub video timestamp smoothly
-      if (videoRef.current && videoRef.current.duration) {
-        const targetTime = ratioX * videoRef.current.duration;
-        videoRef.current.currentTime = targetTime;
-      }
+      targetRatioRef.current = ratioX;
     };
 
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: true });
+
+    // ── 60-120 FPS Butter-Smooth RAF Interpolation Engine ──
+    let rafId: number;
+    let lastDrawnFrame = -1;
+
+    const loop = () => {
+      // Smooth LERP (spring inertia)
+      const diff = targetRatioRef.current - smoothRatioRef.current;
+      if (Math.abs(diff) > 0.0004) {
+        smoothRatioRef.current += diff * 0.12;
+      } else {
+        smoothRatioRef.current = targetRatioRef.current;
+      }
+
+      const ratio = smoothRatioRef.current;
+      const percent = Math.round(ratio * 100);
+
+      // 1. Direct DOM Updates (Zero React Re-render)
+      if (scrubTopRef.current) {
+        scrubTopRef.current.textContent = `${percent}%`;
+      }
+      if (scrubBarRef.current) {
+        scrubBarRef.current.style.width = `${ratio * 100}%`;
+      }
+
+      // 2. Frame update
+      const frameIdx = Math.round(ratio * (FRAME_COUNT - 1));
+      if (frameIdx !== lastDrawnFrame) {
+        lastDrawnFrame = frameIdx;
+        if (frameNumberRef.current) {
+          frameNumberRef.current.textContent = `${String(frameIdx + 1).padStart(3, "0")} / ${FRAME_COUNT}`;
+        }
+        if (hasFramesRef.current) {
+          renderFrame(frameIdx);
+        }
+      }
+
+      // 3. Hardware-Accelerated Video Scrubbing (Only if frames are absent)
+      if (!hasFramesRef.current) {
+        const video = videoRef.current;
+        if (video && video.duration && !video.seeking) {
+          const targetTime = ratio * video.duration;
+          if (Math.abs(video.currentTime - targetTime) > 0.05) {
+            const v = video as any;
+            if (typeof v.fastSeek === "function") {
+              v.fastSeek(targetTime);
+            } else {
+              video.currentTime = targetTime;
+            }
+          }
+        }
+      }
+
+      rafId = requestAnimationFrame(loop);
+    };
+
+    rafId = requestAnimationFrame(loop);
 
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
     };
-  }, [hasFrames]);
+  }, []);
 
   const handleScrollToArena = () => {
     if (onEnterArena) {
@@ -142,13 +186,26 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
       ref={sectionRef}
       style={{
         position: "relative",
-        height: "100vh",
+        minHeight: "calc(100vh - 58px)",
+        height: "calc(100vh - 58px)",
         width: "100%",
         overflow: "hidden",
         backgroundColor: "#03060a",
       }}
     >
-      {/* Fallback Cinematic Video — Full Screen Edge-to-Edge */}
+      {/* Full-viewport canvas for 120 FPS frame-scrubbing */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          display: "block",
+        }}
+      />
+
+      {/* Fallback Cinematic Video */}
       <video
         ref={videoRef}
         muted
@@ -163,19 +220,7 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
           height: "100%",
           objectFit: "cover",
           filter: "brightness(0.85) contrast(1.1)",
-          display: hasFrames ? "none" : "block",
-        }}
-      />
-
-      {/* Full-viewport canvas for frame-scrubbing */}
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          display: hasFrames ? "block" : "none",
+          display: "none",
         }}
       />
 
@@ -204,81 +249,55 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
         }}
       />
 
-      {/* ── TOP NAV BAR ── */}
-      <nav
+      {/* ── HERO TELEMETRY SUB-HEADER ── */}
+      <div
         style={{
           position: "absolute",
-          top: 0,
+          top: 18,
           left: 0,
           right: 0,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "clamp(1rem, 2.5vh, 1.8rem) clamp(1.2rem, 4vw, 3rem)",
+          padding: "0 clamp(1.2rem, 4vw, 3rem)",
           zIndex: 10,
+          pointerEvents: "none",
         }}
       >
-        {/* Logo Branding */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background: "radial-gradient(circle, #10243b 0%, #060e18 100%)",
-              border: "1px solid rgba(0, 240, 255, 0.4)",
-              display: "grid",
-              placeItems: "center",
-              boxShadow: "0 0 20px rgba(0, 240, 255, 0.3)",
-            }}
-          >
-            <img
-              src="/track-vision-logo.png"
-              alt="Track Vision Logo"
-              width={32}
-              height={32}
-              style={{ objectFit: "contain" }}
-            />
-          </div>
-          <div>
-            <span
-              className="digital"
-              style={{
-                fontSize: 16,
-                fontWeight: 900,
-                letterSpacing: "0.22em",
-                color: "#fff",
-              }}
-            >
-              TRACK <span style={{ color: "#ff6a00" }}>VISION</span>
-            </span>
-            <div
-              className="mono"
-              style={{
-                fontSize: 9,
-                color: "#ffaa00",
-                letterSpacing: "0.2em",
-                lineHeight: 1,
-                marginTop: 2,
-              }}
-            >
-              NIRMAN 6.0 ROBOTICS
-            </div>
-          </div>
+        {/* Left Sub-heading Badge */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+            background: "rgba(10, 20, 32, 0.7)",
+            backdropFilter: "blur(14px)",
+            border: "1px solid rgba(45, 75, 110, 0.45)",
+            borderRadius: 30,
+            padding: "6px 14px",
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            color: "#8da3be",
+            pointerEvents: "auto",
+          }}
+        >
+          <span className="live-beacon live-dot-green" />
+          <span>ROBOTICS ARENA // 3D FRAME SCRUBBER</span>
         </div>
 
-        {/* Central HUD Status Pill */}
+        {/* Central HUD Status Pill with Real-time Direct DOM Scrub readout */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: 12,
-            background: "rgba(10, 20, 32, 0.65)",
+            background: "rgba(10, 20, 32, 0.75)",
             backdropFilter: "blur(14px)",
-            border: "1px solid rgba(0, 240, 255, 0.25)",
+            border: "1px solid rgba(0, 240, 255, 0.3)",
             borderRadius: 40,
-            padding: "6px 16px",
-            boxShadow: "0 0 20px rgba(0, 240, 255, 0.1)",
+            padding: "6px 18px",
+            boxShadow: "0 0 20px rgba(0, 240, 255, 0.15)",
+            pointerEvents: "auto",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
@@ -293,26 +312,26 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
           </div>
           <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
           <div className="mono" style={{ fontSize: 11, color: "#8da3be" }}>
-            SCRUB: <span style={{ color: "#ffaa00" }}>{Math.round(mousePos.x * 100)}%</span>
+            SCRUB: <span ref={scrubTopRef} style={{ color: "#ffaa00", minWidth: 32, display: "inline-block" }}>50%</span>
           </div>
         </div>
 
-        {/* Quick Nav Actions */}
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button
-            onClick={handleScrollToArena}
-            className="btn"
-            style={{ fontSize: 12, padding: "8px 16px" }}
-          >
-            <Radio size={14} color="#00f0ff" />
-            <span>Live Arena</span>
-          </button>
-          <Link href="/admin" className="btn btn-primary" style={{ fontSize: 12, padding: "8px 16px" }}>
-            <Shield size={14} />
-            <span>Control Room</span>
-          </Link>
-        </div>
-      </nav>
+        {/* Right CTA to Jump into Live Arena */}
+        <button
+          onClick={handleScrollToArena}
+          className="btn btn-primary"
+          style={{
+            fontSize: 12,
+            padding: "8px 18px",
+            gap: 8,
+            pointerEvents: "auto",
+            boxShadow: "0 0 20px rgba(255, 106, 0, 0.4)",
+          }}
+        >
+          <Radio size={14} />
+          <span>Enter Live Arena</span>
+        </button>
+      </div>
 
       {/* ── MAIN CONTENT (Left Telemetry Display) ── */}
       <div
@@ -450,7 +469,7 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
           zIndex: 6,
         }}
       >
-        {/* Play Live Broadcast CTA */}
+        {/* Play Live Broadcast CTA / Scroll to Arena */}
         <div
           onClick={handleScrollToArena}
           style={{
@@ -529,12 +548,12 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
           ))}
         </div>
 
-        {/* Frame / Timeline Scrubber Indicator */}
+        {/* Frame / Timeline Scrubber Indicator with Direct DOM updates */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div className="mono" style={{ fontSize: 10, color: "#8da3be", textAlign: "right" }}>
             <div>FRAME SCRUBBER</div>
-            <div style={{ color: "#00f0ff" }}>
-              {String(currentFrame + 1).padStart(3, "0")} / {FRAME_COUNT}
+            <div ref={frameNumberRef} style={{ color: "#00f0ff" }}>
+              060 / {FRAME_COUNT}
             </div>
           </div>
           <div
@@ -547,9 +566,10 @@ export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) 
             }}
           >
             <div
+              ref={scrubBarRef}
               style={{
                 height: "100%",
-                width: `${mousePos.x * 100}%`,
+                width: "50%",
                 background: "linear-gradient(90deg, #00f0ff, #ff6a00)",
                 boxShadow: "0 0 10px #00f0ff",
               }}

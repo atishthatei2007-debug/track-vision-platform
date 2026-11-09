@@ -488,3 +488,94 @@ body::before {
     font-size: 12px;
   }
 }
+
+/* ========================================================
+   GCC SMART RACE CONTROL — MOTORSPORT DESIGN SYSTEM
+   ======================================================== */
+
+:root {
+  --gcc-orange: #ff6a00;
+  --gcc-orange-glow: rgba(255, 106, 0, 0.4);
+  --gcc-carbon: #080c12;
+  --gcc-surface: rgba(10, 16, 26, 0.75);
+  --gcc-border: rgba(45, 75, 110, 0.4);
+  --gcc-cyan: #00f0ff;
+  --gcc-green: #00ff88;
+}
+
+.gcc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 106, 0, 0.12);
+  border: 1px solid rgba(255, 106, 0, 0.35);
+  color: #ff8533;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gcc-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #8da3be;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.gcc-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 106, 0, 0.08);
+  border-color: rgba(255, 106, 0, 0.25);
+}
+
+.gcc-tab-btn.active {
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(255, 106, 0, 0.18) 0%, rgba(255, 85, 0, 0.08) 100%);
+  border-color: rgba(255, 106, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 106, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.gcc-card {
+  background: var(--gcc-surface);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--gcc-border);
+  border-radius: 16px;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.gcc-card:hover {
+  border-color: rgba(255, 106, 0, 0.45);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 106, 0, 0.15);
+}
+
+/* Print Styles for Official Race Reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  nav, footer, .btn, .no-print {
+    display: none !important;
+  }
+  .gcc-card {
+    border: 1px solid #ccc !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+}
