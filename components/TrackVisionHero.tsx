@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Activity,
   Award,
+  BarChart3,
   ChevronDown,
   Cpu,
   Radio,
@@ -70,13 +71,15 @@ export default function TrackVisionHero({
       }
     };
 
-    // Dynamic cover resize
+    // Dynamic cover resize with full retina resolution and high quality smoothing
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
       canvas.width = Math.round(window.innerWidth * dpr);
       canvas.height = Math.round(window.innerHeight * dpr);
       canvas.style.width = window.innerWidth + "px";
       canvas.style.height = window.innerHeight + "px";
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
       const currentIdx = Math.round(smoothRatioRef.current * (FRAME_COUNT - 1));
       renderFrame(currentIdx);
     };
@@ -198,14 +201,14 @@ export default function TrackVisionHero({
       ref={sectionRef}
       style={{
         position: "relative",
-        minHeight: "calc(100vh - 58px)",
-        height: "calc(100vh - 58px)",
+        minHeight: "100vh",
+        height: "100vh",
         width: "100%",
         overflow: "hidden",
         backgroundColor: "#03060a",
       }}
     >
-      {/* Full-viewport canvas for 120 FPS frame-scrubbing */}
+      {/* Full-viewport canvas for 120 FPS frame-scrubbing — Crystal Clear Retina */}
       <canvas
         ref={canvasRef}
         style={{
@@ -214,10 +217,11 @@ export default function TrackVisionHero({
           width: "100%",
           height: "100%",
           display: "block",
+          imageRendering: "auto",
         }}
       />
 
-      {/* Fallback Cinematic Video */}
+      {/* Fallback Cinematic Video — High Fidelity, Crisp & Bright */}
       <video
         ref={videoRef}
         muted
@@ -231,41 +235,34 @@ export default function TrackVisionHero({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          filter: "brightness(0.85) contrast(1.1)",
+          filter: "brightness(1) contrast(1.05)",
           display: "none",
         }}
       />
 
-      {/* Cyberpunk Vignette & Lighting Gradients */}
+      {/* Soft Vignette Gradient (Ensures HUD text legibility without dimming the robot or adding grids) */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
-          background: [
-            "linear-gradient(to right, rgba(3,6,10,0.92) 0%, rgba(3,6,10,0.65) 28%, rgba(3,6,10,0.2) 60%, rgba(3,6,10,0.85) 100%)",
-            "linear-gradient(180deg, rgba(3,6,10,0.75) 0%, transparent 20%, transparent 70%, rgba(3,6,10,0.98) 100%)",
-          ].join(", "),
+          background: "linear-gradient(to right, rgba(3,6,10,0.7) 0%, rgba(3,6,10,0.3) 35%, transparent 65%)",
         }}
       />
 
-      {/* Scanline Grid Overlay */}
+      {/* ── FOREGROUND INTERACTIVE HUD OVERLAYS (Visible on Showcase tab) ── */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          backgroundImage: "linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%)",
-          backgroundSize: "100% 4px",
-          opacity: 0.5,
+          opacity: isBackground ? 0 : 1,
+          pointerEvents: isBackground ? "none" : "auto",
+          transition: "opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
-      />
-
-      {/* ── HERO TELEMETRY SUB-HEADER ── */}
-      <div
+      >
+      {/* ── HERO TELEMETRY SUB-HEADER (Clean, Minimal, No Redundant Top Nav) ── */}
+      <header
         style={{
           position: "absolute",
-          top: 18,
+          top: 16,
           left: 0,
           right: 0,
           display: "flex",
@@ -276,25 +273,54 @@ export default function TrackVisionHero({
           pointerEvents: "none",
         }}
       >
-        {/* Left Sub-heading Badge */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            background: "rgba(10, 20, 32, 0.7)",
-            backdropFilter: "blur(14px)",
-            border: "1px solid rgba(45, 75, 110, 0.45)",
-            borderRadius: 30,
-            padding: "6px 14px",
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "#8da3be",
-            pointerEvents: "auto",
-          }}
-        >
-          <span className="live-beacon live-dot-green" />
-          <span>ROBOTICS ARENA // 3D FRAME SCRUBBER</span>
+        {/* Brand Logo & Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, pointerEvents: "auto" }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: "radial-gradient(circle, #10243b 0%, #060e18 100%)",
+              border: "1px solid rgba(0, 240, 255, 0.45)",
+              display: "grid",
+              placeItems: "center",
+              boxShadow: "0 0 14px rgba(0, 240, 255, 0.25)",
+            }}
+          >
+            <img
+              src="/track-vision-logo.png"
+              alt="Track Vision Logo"
+              width={24}
+              height={24}
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+          <div>
+            <div
+              className="digital"
+              style={{
+                fontSize: 13,
+                fontWeight: 900,
+                letterSpacing: "0.16em",
+                color: "#fff",
+                lineHeight: 1.1,
+              }}
+            >
+              TRACK <span style={{ color: "#ff6a00" }}>VISION</span>
+            </div>
+            <div
+              className="mono"
+              style={{
+                fontSize: 8.5,
+                color: "#ffaa00",
+                letterSpacing: "0.16em",
+                lineHeight: 1,
+                marginTop: 2,
+              }}
+            >
+              GCC SMART RACE CONTROL // NIRMAN 6.0
+            </div>
+          </div>
         </div>
 
         {/* Central HUD Status Pill with Real-time Direct DOM Scrub readout */}
@@ -302,58 +328,47 @@ export default function TrackVisionHero({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            background: "rgba(10, 20, 32, 0.75)",
+            gap: 10,
+            background: "rgba(10, 20, 32, 0.8)",
             backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
             border: "1px solid rgba(0, 240, 255, 0.3)",
-            borderRadius: 40,
-            padding: "6px 18px",
-            boxShadow: "0 0 20px rgba(0, 240, 255, 0.15)",
+            borderRadius: 30,
+            padding: "5px 14px",
+            boxShadow: "0 0 16px rgba(0, 240, 255, 0.12)",
             pointerEvents: "auto",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10 }}>
             <span className="live-beacon live-dot-green" />
             <span className="mono" style={{ color: "#00ff88", fontWeight: 600 }}>
               GATES ARMED [4/4]
             </span>
           </div>
           <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
-          <div className="mono" style={{ fontSize: 11, color: "#8da3be" }}>
+          <div className="mono" style={{ fontSize: 10, color: "#8da3be" }}>
             FREQ: <span style={{ color: "#00f0ff" }}>1000 Hz</span>
           </div>
           <span style={{ color: "rgba(255, 255, 255, 0.2)" }}>|</span>
-          <div className="mono" style={{ fontSize: 11, color: "#8da3be" }}>
-            SCRUB: <span ref={scrubTopRef} style={{ color: "#ffaa00", minWidth: 32, display: "inline-block" }}>50%</span>
+          <div className="mono" style={{ fontSize: 10, color: "#8da3be" }}>
+            SCRUB: <span ref={scrubTopRef} style={{ color: "#ffaa00", minWidth: 28, display: "inline-block" }}>50%</span>
           </div>
         </div>
+      </header>
 
-        {/* Right CTA to Jump into Live Arena */}
-        <button
-          onClick={handleScrollToArena}
-          className="btn btn-primary"
-          style={{
-            fontSize: 12,
-            padding: "8px 18px",
-            gap: 8,
-            pointerEvents: "auto",
-            boxShadow: "0 0 20px rgba(255, 106, 0, 0.4)",
-          }}
-        >
-          <Radio size={14} />
-          <span>Enter Live Arena</span>
-        </button>
-      </div>
-
-      {/* ── MAIN CONTENT (Left Telemetry Display) ── */}
+      {/* ── MAIN CONTENT (Left Telemetry Display — Precision Responsive Screen Size) ── */}
       <div
         style={{
           position: "absolute",
           top: "50%",
           transform: "translateY(-50%)",
-          left: "clamp(1.5rem, 6vw, 5rem)",
-          maxWidth: "clamp(320px, 42vw, 580px)",
+          left: "clamp(1.5rem, 5vw, 4.5rem)",
+          maxWidth: "clamp(320px, 46vw, 600px)",
           zIndex: 5,
+          maxHeight: "calc(100vh - 120px)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
         {/* Category Badge */}
@@ -361,19 +376,20 @@ export default function TrackVisionHero({
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: 8,
-            padding: "5px 12px",
+            gap: 7,
+            padding: "4px 10px",
             borderRadius: 6,
             background: "rgba(255, 170, 0, 0.12)",
             border: "1px solid rgba(255, 170, 0, 0.35)",
             color: "#ffaa00",
             fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            letterSpacing: "0.18em",
-            marginBottom: 16,
+            fontSize: 10,
+            letterSpacing: "0.16em",
+            marginBottom: 10,
+            alignSelf: "flex-start",
           }}
         >
-          <Zap size={13} color="#ffaa00" />
+          <Zap size={12} color="#ffaa00" />
           <span>ROBOTICS TIMING & TELEMETRY PROTOCOL</span>
         </div>
 
@@ -381,19 +397,18 @@ export default function TrackVisionHero({
         <h1
           className="digital"
           style={{
-            fontSize: "clamp(2.8rem, 6.5vw, 5.8rem)",
+            fontSize: "clamp(2.2rem, 4.4vw, 3.8rem)",
             fontWeight: 900,
             letterSpacing: "0.04em",
             textTransform: "uppercase",
             color: "#ffffff",
             lineHeight: 0.95,
-            margin: "0 0 18px",
-            textShadow: "0 0 40px rgba(0, 240, 255, 0.4), 0 4px 30px rgba(0, 0, 0, 0.95)",
+            margin: "0 0 10px",
+            textShadow: "0 0 35px rgba(0, 240, 255, 0.35), 0 4px 25px rgba(0, 0, 0, 0.95)",
           }}
         >
-          TRACK
-          <br />
-          <span style={{ color: "#ff6a00", textShadow: "0 0 45px rgba(255, 106, 0, 0.7)" }}>
+          TRACK{" "}
+          <span style={{ color: "#ff6a00", textShadow: "0 0 40px rgba(255, 106, 0, 0.7)" }}>
             VISION
           </span>
         </h1>
@@ -401,11 +416,11 @@ export default function TrackVisionHero({
         {/* Subtitle Description */}
         <p
           style={{
-            fontSize: "clamp(0.85rem, 1.1vw, 1rem)",
+            fontSize: "clamp(0.8rem, 0.95vw, 0.88rem)",
             fontWeight: 400,
-            lineHeight: 1.6,
-            color: "rgba(220, 235, 255, 0.75)",
-            marginBottom: 28,
+            lineHeight: 1.5,
+            color: "rgba(220, 235, 255, 0.78)",
+            marginBottom: 14,
             maxWidth: 480,
           }}
         >
@@ -414,39 +429,140 @@ export default function TrackVisionHero({
         </p>
 
         {/* Action Buttons */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
           <button
             onClick={handleScrollToArena}
             className="btn btn-primary"
-            style={{ padding: "12px 24px", fontSize: 13 }}
+            style={{ padding: "8px 18px", fontSize: 12, gap: 7 }}
           >
-            <Radio size={16} /> Enter Live Arena
+            <Radio size={14} /> Enter Live Arena
           </button>
 
           <Link
             href="/admin"
             className="btn"
-            style={{ padding: "12px 22px", fontSize: 13 }}
+            style={{ padding: "8px 16px", fontSize: 12, gap: 7, background: "rgba(10, 20, 34, 0.75)", border: "1px solid rgba(0, 240, 255, 0.35)" }}
           >
-            <Shield size={16} color="#00f0ff" /> Launch Console
+            <Shield size={14} color="#00f0ff" /> Launch Console
           </Link>
+        </div>
+
+        {/* ── ALL RACE CONTROL OPTIONS (Integrated Directly on the Animation Video) ── */}
+        <div
+          style={{
+            background: "rgba(6, 12, 22, 0.82)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: "1px solid rgba(45, 75, 110, 0.45)",
+            borderRadius: 12,
+            padding: "10px 12px",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <div
+            className="mono"
+            style={{
+              fontSize: 9.5,
+              color: "#ffaa00",
+              letterSpacing: "0.16em",
+              marginBottom: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Activity size={11} color="#ffaa00" />
+              <span>RACE CONTROL PORTALS // CLICK TO OPEN:</span>
+            </div>
+            <span style={{ color: "#00ff88", fontSize: 9 }}>● REALTIME</span>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))",
+              gap: 6,
+            }}
+          >
+            {[
+              { id: "live" as GccTab, label: "Live Arena", sub: "Live Timing", icon: Radio, color: "#ff6a00" },
+              { id: "overview" as GccTab, label: "Overview", sub: "Telemetry", icon: Activity, color: "#00f0ff" },
+              { id: "teams" as GccTab, label: "Teams", sub: "16 Squads", icon: Users, color: "#00ff88" },
+              { id: "leaderboard" as GccTab, label: "Leaderboard", sub: "Standings", icon: Award, color: "#ffaa00" },
+              { id: "replay" as GccTab, label: "Replay", sub: "Playback", icon: RotateCcw, color: "#c084fc" },
+              { id: "hardware" as GccTab, label: "Hardware", sub: "ESP32 DevKit", icon: Cpu, color: "#38bdf8" },
+              { id: "reports" as GccTab, label: "Reports", sub: "PDF Analytics", icon: BarChart3, color: "#34d399" },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => (onSelectTab ? onSelectTab(item.id) : handleScrollToArena())}
+                  className="gcc-card"
+                  style={{
+                    padding: "6px 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
+                    background: "rgba(10, 18, 30, 0.8)",
+                    border: `1px solid ${item.color}35`,
+                    borderRadius: 7,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.16s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = item.color;
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = `0 3px 12px ${item.color}35`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = `${item.color}35`;
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <Icon size={13} color={item.color} />
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 9.5,
+                        fontWeight: 800,
+                        fontFamily: "var(--font-digital)",
+                        color: "#fff",
+                        letterSpacing: "0.03em",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.label}
+                    </div>
+                    <div className="mono" style={{ fontSize: 7.5, color: "#8da3be" }}>
+                      {item.sub}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Diagnostics Ticker */}
         <div
           style={{
-            marginTop: 32,
-            padding: "10px 16px",
-            borderRadius: 10,
+            marginTop: 12,
+            padding: "6px 12px",
+            borderRadius: 8,
             background: "rgba(10, 18, 30, 0.6)",
             backdropFilter: "blur(12px)",
-            border: "1px solid rgba(45, 75, 110, 0.4)",
+            border: "1px solid rgba(45, 75, 110, 0.35)",
             display: "inline-flex",
             alignItems: "center",
-            gap: 16,
+            gap: 12,
             fontFamily: "var(--font-mono)",
-            fontSize: 11,
+            fontSize: 10,
             color: "#8da3be",
+            alignSelf: "flex-start",
           }}
         >
           <div>
@@ -454,7 +570,7 @@ export default function TrackVisionHero({
           </div>
           <span style={{ opacity: 0.3 }}>//</span>
           <div>
-            CHANNELS: <span style={{ color: "#00ff88" }}>4x ADC1 LDR Gates</span>
+            CHANNELS: <span style={{ color: "#00ff88" }}>4x ADC1 Gates</span>
           </div>
           <span style={{ opacity: 0.3 }}>//</span>
           <div>
@@ -463,7 +579,7 @@ export default function TrackVisionHero({
         </div>
       </div>
 
-      {/* ── BOTTOM TELEMETRY BAR ── */}
+      {/* ── BOTTOM TELEMETRY BAR (Compact 52px for Optimal Viewport Fit) ── */}
       <div
         style={{
           position: "absolute",
@@ -473,11 +589,11 @@ export default function TrackVisionHero({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          height: "clamp(56px, 8vh, 72px)",
-          background: "rgba(4, 8, 14, 0.8)",
+          height: 52,
+          background: "rgba(4, 8, 14, 0.85)",
           backdropFilter: "blur(20px)",
           borderTop: "1px solid rgba(45, 75, 110, 0.35)",
-          padding: "0 clamp(1.2rem, 4vw, 3rem)",
+          padding: "0 clamp(1rem, 3.5vw, 2.5rem)",
           zIndex: 6,
         }}
       >
@@ -588,6 +704,7 @@ export default function TrackVisionHero({
             />
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

@@ -242,21 +242,17 @@ export default function Preloader() {
           top: 0, left: 0,
           width: "100%", height: "100%",
           objectFit: "cover",
-          filter: "brightness(0.85) contrast(1.1)",
+          filter: "brightness(1) contrast(1.05)",
         }}
       />
 
-      {/* ── Overlay ── */}
+      {/* ── Crisp Clean Vignette (NO scanline grid) ── */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
-          background: [
-            "radial-gradient(circle at center, rgba(3,6,10,0.6) 0%, rgba(3,6,10,0.92) 80%, #03060a 100%)",
-            "linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.4) 50%)",
-          ].join(", "),
-          backgroundSize: "100% 100%, 100% 4px",
+          background: "radial-gradient(circle at center, rgba(3,6,10,0.2) 0%, rgba(3,6,10,0.75) 85%, #03060a 100%)",
         }}
       />
 

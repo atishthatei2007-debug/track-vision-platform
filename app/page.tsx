@@ -7,20 +7,23 @@ import {
   Activity,
   Antenna,
   Award,
+  BarChart3,
   CheckCircle2,
   Clock,
   Cpu,
   Flame,
   Radio,
+  RotateCcw,
   Shield,
   Timer,
   Trophy,
+  Users,
   Wifi,
   Zap,
 } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import TrackVisionHero from "@/components/TrackVisionHero";
-import GccNav, { GccTab } from "@/components/gcc/GccNav";
+import { type GccTab } from "@/components/gcc/GccNav";
 import GccOverview from "@/components/gcc/GccOverview";
 import GccTeamsDirectory from "@/components/gcc/GccTeamsDirectory";
 import GccLeaderboardTable from "@/components/gcc/GccLeaderboardTable";
@@ -208,41 +211,136 @@ export default function Home() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#03060a" }}>
-      {/* ── GCC SMART RACE CONTROL MASTER NAVIGATION BAR (Always at Top) ── */}
-      <GccNav
-        activeTab={activeTab}
-        onSelectTab={handleSelectTab}
-        connected={connected}
-        activeRunCount={isRunning ? 1 : 0}
-      />
+    <div style={{ minHeight: "100vh", backgroundColor: "#03060a", position: "relative" }}>
+      {/* ── PERSISTENT SHOWCASE ANIMATION VIDEO LAYER (Edge-to-Edge Fullscreen 100vh) ── */}
+      <div
+        style={{
+          position: activeTab === "home" ? "relative" : "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: "100vh",
+          width: "100%",
+          zIndex: 0,
+          pointerEvents: activeTab === "home" ? "auto" : "none",
+        }}
+      >
+        <TrackVisionHero
+          onEnterArena={handleScrollToLive}
+          onSelectTab={handleSelectTab}
+          isBackground={activeTab !== "home"}
+        />
+      </div>
 
-      {/* ── DYNAMIC PORTAL / SHOWCASE CONTAINER WITH SMOOTH MOTORSPORT TRANSITION ── */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          style={{ width: "100%" }}
+      {/* ── DYNAMIC PORTAL OVERLAY CONTAINER (Translucent motorsport glass over the animation video) ── */}
+      {activeTab !== "home" && (
+        <div
+          style={{
+            position: "relative",
+            zIndex: 10,
+            minHeight: "100vh",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+            background: "rgba(3, 7, 14, 0.88)",
+          }}
         >
-          {/* TAB 0: OPENING SHOWCASE HERO */}
-          {activeTab === "home" && (
-            <TrackVisionHero onEnterArena={handleScrollToLive} />
-          )}
-
-          {/* PORTAL CONTAINER FOR ALL CONTENT MODULES */}
-          {activeTab !== "home" && (
-            <main
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 maxWidth: 1440,
                 margin: "0 auto",
-                padding: "36px 24px 60px",
-                position: "relative",
-                zIndex: 1,
+                padding: "24px 24px 60px",
               }}
             >
+              {/* Portal Header with Fast Portal Navigation & Return to Showcase */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 16,
+                  flexWrap: "wrap",
+                  marginBottom: 24,
+                  paddingBottom: 16,
+                  borderBottom: "1px solid rgba(45, 75, 110, 0.35)",
+                }}
+              >
+                {/* Return Button */}
+                <button
+                  onClick={() => handleSelectTab("home")}
+                  className="btn"
+                  style={{
+                    fontSize: 12,
+                    padding: "8px 18px",
+                    gap: 8,
+                    background: "rgba(10, 20, 34, 0.85)",
+                    border: "1px solid rgba(0, 240, 255, 0.4)",
+                    color: "#00f0ff",
+                    boxShadow: "0 0 15px rgba(0, 240, 255, 0.15)",
+                  }}
+                >
+                  <Zap size={14} color="#00f0ff" />
+                  <span>← RETURN TO 3D SHOWCASE ANIMATION</span>
+                </button>
+
+                {/* Portal Quick-Tabs Switcher */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    overflowX: "auto",
+                    padding: "4px 0",
+                  }}
+                >
+                  {[
+                    { id: "live" as GccTab, label: "Live Arena", icon: Radio },
+                    { id: "overview" as GccTab, label: "Overview", icon: Activity },
+                    { id: "teams" as GccTab, label: "Teams", icon: Users },
+                    { id: "leaderboard" as GccTab, label: "Leaderboard", icon: Award },
+                    { id: "replay" as GccTab, label: "Replay", icon: RotateCcw },
+                    { id: "hardware" as GccTab, label: "Hardware", icon: Cpu },
+                    { id: "reports" as GccTab, label: "Reports", icon: BarChart3 },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleSelectTab(tab.id)}
+                        className={`gcc-tab-btn ${isActive ? "active" : ""}`}
+                        style={{ fontSize: 11, padding: "6px 12px" }}
+                      >
+                        <Icon size={13} color={isActive ? "#ff6a00" : "#8da3be"} />
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Right Quick Link to Admin Console */}
+                <Link
+                  href="/admin"
+                  className="btn"
+                  style={{
+                    fontSize: 11,
+                    padding: "7px 14px",
+                    gap: 6,
+                    background: "rgba(10, 20, 34, 0.75)",
+                    border: "1px solid rgba(0, 240, 255, 0.35)",
+                  }}
+                >
+                  <Shield size={13} color="#00f0ff" />
+                  <span>Race Control</span>
+                </Link>
+              </div>
+
               {/* TAB 1: OVERVIEW */}
               {activeTab === "overview" && (
             <GccOverview
@@ -955,10 +1053,10 @@ export default function Home() {
               </footer>
             </>
           )}
-        </main>
-      )}
-    </motion.div>
-  </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )}
 </div>
 );
 }
