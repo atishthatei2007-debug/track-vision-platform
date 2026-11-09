@@ -3,11 +3,17 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
+  Activity,
+  Award,
   ChevronDown,
+  Cpu,
   Radio,
+  RotateCcw,
   Shield,
+  Users,
   Zap,
 } from "lucide-react";
+import { GccTab } from "@/components/gcc/GccNav";
 
 // Frame Sequence Configuration
 const FRAME_COUNT = 120;
@@ -15,9 +21,15 @@ const FOLDER = "trackvision-frames";
 
 interface TrackVisionHeroProps {
   onEnterArena?: () => void;
+  onSelectTab?: (tab: GccTab) => void;
+  isBackground?: boolean;
 }
 
-export default function TrackVisionHero({ onEnterArena }: TrackVisionHeroProps) {
+export default function TrackVisionHero({
+  onEnterArena,
+  onSelectTab,
+  isBackground = false,
+}: TrackVisionHeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
