@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
+import LiveKitBroadcaster from "@/components/livekit/LiveKitBroadcaster";
 import {
   ArrowLeft,
   LogIn,
@@ -82,8 +83,15 @@ export default function AdminPage() {
       },
       body: JSON.stringify(body),
     });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || "Request failed");
+    const contentType = r.headers.get("content-type") || "";
+    let j: any = null;
+    if (contentType.includes("application/json")) {
+      j = await r.json().catch(() => null);
+    } else {
+      const text = await r.text().catch(() => "");
+      throw new Error(`Server returned non-JSON response (${r.status}): ${text.slice(0, 80)}`);
+    }
+    if (!r.ok || !j) throw new Error(j?.error || `Request failed (${r.status})`);
     return j;
   }
 
@@ -335,6 +343,9 @@ export default function AdminPage() {
           <span>{message}</span>
         </div>
       )}
+
+      {/* LiveKit Camera Broadcaster (DroidCam / Webcam Uplink) */}
+      <LiveKitBroadcaster session={session} />
 
       {/* Control Actions Row */}
       <section className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>

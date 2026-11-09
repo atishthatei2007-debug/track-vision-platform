@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { AccessToken, TrackSource } from "livekit-server-sdk";
 import { requireAdmin, requireUser } from "@/lib/admin-auth";
 
+export const dynamic = "force-dynamic";
+
 const ROOM_NAME = "track-vision-live";
 const TOKEN_TTL_SECONDS = 3600; // 1-hour short-lived token
 
@@ -49,7 +51,7 @@ async function generateLiveKitToken(
   }
 
   // 4. Authenticate & Authorize via existing Supabase auth system
-  let user;
+  let user: { id: string; email?: string; user_metadata?: Record<string, any> } | null = null;
   let isAdmin = false;
 
   if (role === "broadcaster") {
@@ -59,11 +61,16 @@ async function generateLiveKitToken(
     user = auth.user;
     isAdmin = true;
   } else {
-    // Spectator: Authenticated user authorized to subscribe only
-    const auth = await requireUser(req);
-    if (!auth.ok) return auth.response;
-    user = auth.user;
-    isAdmin = auth.isAdmin;
+    // Spectator: Verify Supabase session if token provided, or permit public spectator
+    const header = req.headers.get("authorization") || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    if (token) {
+      const auth = await requireUser(req);
+      if (auth.ok) {
+        user = auth.user;
+        isAdmin = auth.isAdmin;
+      }
+    }
   }
 
   // 5. Validate optional identity and display name
@@ -83,11 +90,19 @@ async function generateLiveKitToken(
     );
   }
 
-  const identity = requestedIdentity || user.id;
+  // Ensure each participant connection has a unique identity in the room to prevent duplicate disconnects
+  const rolePrefix = role === "broadcaster" ? "broadcaster" : "spectator";
+  const userSuffix = user ? user.id.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 8) : "anon";
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+
+  const identity =
+    requestedIdentity ||
+    `${rolePrefix}_${userSuffix}_${randomSuffix}`;
+
   const participantName =
     requestedName ||
-    (user.user_metadata?.full_name as string) ||
-    (user.email ? user.email.split("@")[0] : undefined) ||
+    (user?.user_metadata?.full_name as string) ||
+    (user?.email ? user.email.split("@")[0] : undefined) ||
     (isAdmin ? "Race Director" : "Spectator");
 
   // 6. Generate short-lived LiveKit access token with strict permissions
@@ -99,7 +114,7 @@ async function generateLiveKitToken(
       metadata: JSON.stringify({
         role,
         isAdmin,
-        userId: user.id,
+        userId: user ? user.id : "public_spectator",
       }),
     });
 

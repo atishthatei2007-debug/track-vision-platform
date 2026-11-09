@@ -35,6 +35,7 @@ import RaceSchedulePanel from "@/components/RaceSchedulePanel";
 import SponsorWall from "@/components/SponsorWall";
 import GallerySection from "@/components/GallerySection";
 import EventCountdown from "@/components/EventCountdown";
+import LiveKitSpectatorPlayer from "@/components/livekit/LiveKitSpectatorPlayer";
 
 type Team = {
   id: string;
@@ -609,7 +610,7 @@ export default function Home() {
                   >
                     <div style={{ fontWeight: 700, display: "flex", gap: 10, alignItems: "center", fontSize: 14 }}>
                       <Radio size={16} color="#00f0ff" />
-                      <span>LIVE TRACK BROADCAST</span>
+                      <span>LIVE TRACK BROADCAST // WEBRTC</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div className="eq-bars">
@@ -618,56 +619,12 @@ export default function Home() {
                         <span className="eq-bar" />
                         <span className="eq-bar" />
                       </div>
-                      <span className="pill pill-orange">YOUTUBE FEED</span>
+                      <span className="pill pill-green">WEBRTC LIVE</span>
                     </div>
                   </div>
 
-                  {/* Video or High-Tech Standby Screen */}
-                  <div
-                    style={{
-                      aspectRatio: "16/9",
-                      background: "#03060a",
-                      position: "relative",
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    {videoId ? (
-                      <iframe
-                        title="Track Vision live stream"
-                        width="100%"
-                        height="100%"
-                        src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        style={{ border: 0, width: "100%", height: "100%", objectFit: "contain" }}
-                      />
-                    ) : (
-                      <div style={{ textAlign: "center", padding: 32, position: "relative", zIndex: 2 }}>
-                        <div
-                          style={{
-                            width: 72,
-                            height: 72,
-                            margin: "0 auto",
-                            borderRadius: "50%",
-                            background: "rgba(0, 240, 255, 0.08)",
-                            border: "1px solid rgba(0, 240, 255, 0.3)",
-                            display: "grid",
-                            placeItems: "center",
-                            boxShadow: "0 0 30px rgba(0, 240, 255, 0.2)",
-                          }}
-                        >
-                          <Activity size={32} color="#00f0ff" />
-                        </div>
-                        <div className="digital" style={{ fontSize: 19, fontWeight: 700, marginTop: 16 }}>
-                          AWAITING LIVE VIDEO FEED
-                        </div>
-                        <p className="muted" style={{ fontSize: 13, maxWidth: 360, margin: "8px auto 0" }}>
-                          Connect your OBS stream to YouTube Live and set <code style={{ color: "#00f0ff" }}>NEXT_PUBLIC_YOUTUBE_VIDEO_ID</code> in <code style={{ color: "#ffaa00" }}>.env.local</code>.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  {/* Real-time WebRTC LiveKit Spectator Player */}
+                  <LiveKitSpectatorPlayer />
 
                   {/* Active Race HUD Bar */}
                   <div
