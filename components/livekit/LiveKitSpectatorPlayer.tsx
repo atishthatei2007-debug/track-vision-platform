@@ -10,6 +10,7 @@ import {
   RemoteParticipant,
   ConnectionQuality,
   ConnectionState,
+  setLogLevel,
 } from "livekit-client";
 import {
   Activity,
@@ -25,6 +26,24 @@ import {
   Eye,
 } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
+
+// Filter harmless unmount transport teardown logs so Next.js devtools does not trigger an overlay
+if (typeof window !== "undefined") {
+  try {
+    setLogLevel("warn");
+  } catch {}
+  const origErr = console.error;
+  console.error = (...args: any[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("error reading from signal stream")
+    ) {
+      console.warn("LiveKit signal stream closed cleanly on unmount.");
+      return;
+    }
+    origErr.apply(console, args);
+  };
+}
 
 export default function LiveKitSpectatorPlayer() {
   const [hasVideo, setHasVideo] = useState<boolean>(false);
@@ -258,8 +277,9 @@ export default function LiveKitSpectatorPlayer() {
       document.removeEventListener("fullscreenchange", onFullscreenChange);
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       if (roomRef.current) {
-        roomRef.current.disconnect();
+        const r = roomRef.current;
         roomRef.current = null;
+        r.disconnect().catch(() => {});
       }
     };
   }, [connectToStream]);

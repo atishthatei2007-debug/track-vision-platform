@@ -11,7 +11,14 @@ import {
   LocalAudioTrack,
   ConnectionQuality,
   VideoPresets,
+  setLogLevel,
 } from "livekit-client";
+
+if (typeof window !== "undefined") {
+  try {
+    setLogLevel("warn");
+  } catch {}
+}
 import {
   Camera,
   Mic,
