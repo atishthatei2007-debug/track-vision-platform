@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Zap,
 } from "lucide-react";
+import TeamRaceRecorder from "@/components/TeamRaceRecorder";
 
 type Team = {
   id: string;
@@ -347,8 +348,11 @@ export default function AdminPage() {
       {/* LiveKit Camera Broadcaster (DroidCam / Webcam Uplink) */}
       <LiveKitBroadcaster session={session} />
 
+      {/* Team Stream Auto-Recorder */}
+      <TeamRaceRecorder activeRun={active} />
+
       {/* Control Actions Row */}
-      <section className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+      <section className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 18 }}>
         {/* Race Start / Abort */}
         <div className="panel hud-panel" style={{ padding: 24 }}>
           <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.15em" }}>
