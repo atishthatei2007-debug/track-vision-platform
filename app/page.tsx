@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLenis } from "lenis/react";
 import {
   Activity,
   Antenna,
@@ -12,9 +13,12 @@ import {
   Clock,
   Cpu,
   Flame,
+  Map,
   Radio,
   RotateCcw,
+  ScrollText,
   Shield,
+  Sparkles,
   Timer,
   Trophy,
   Users,
@@ -30,12 +34,23 @@ import GccLeaderboardTable from "@/components/gcc/GccLeaderboardTable";
 import GccReplayCenter from "@/components/gcc/GccReplayCenter";
 import GccHardwareMonitor from "@/components/gcc/GccHardwareMonitor";
 import GccReports from "@/components/gcc/GccReports";
+import GccEventLog from "@/components/gcc/GccEventLog";
+import GccTrackMap from "@/components/gcc/GccTrackMap";
+import GccAiAnalyst from "@/components/gcc/GccAiAnalyst";
+import GccStatusBar from "@/components/GccStatusBar";
 import AudioEngine, { playCheckpointBeep, playRaceStart, playRaceFinish } from "@/components/AudioEngine";
 import RaceSchedulePanel from "@/components/RaceSchedulePanel";
 import SponsorWall from "@/components/SponsorWall";
 import GallerySection from "@/components/GallerySection";
 import EventCountdown from "@/components/EventCountdown";
 import LiveKitSpectatorPlayer from "@/components/livekit/LiveKitSpectatorPlayer";
+import NirmanRulebookFaq from "@/components/NirmanRulebookFaq";
+import FloatingArenaMenu from "@/components/FloatingArenaMenu";
+import TiltCard from "@/components/kinetics/TiltCard";
+import CyberScrambleText from "@/components/kinetics/CyberScrambleText";
+import MissionControlHudBar from "@/components/kinetics/MissionControlHudBar";
+import MechanicalBlastDoors from "@/components/kinetics/MechanicalBlastDoors";
+import InteractiveBotInspector from "@/components/kinetics/InteractiveBotInspector";
 
 type Team = {
   id: string;
@@ -94,6 +109,7 @@ export default function Home() {
 
   // GCC Smart Race Control Active Module (defaults to Opening Hero "home")
   const [activeTab, setActiveTab] = useState<GccTab>("home");
+  const lenis = useLenis();
   // Audio: track previous checks to only beep on NEW checkpoint events
   const prevChecksRef = useRef<number[]>([]);
   // Audio: track previous run status to detect race start/finish
@@ -202,9 +218,19 @@ export default function Home() {
   const isRunning = active?.status === "running";
   const fastestLap = sorted.find((t) => t.best_time_ms != null);
 
+  useEffect(() => {
+    if (!lenis) return;
+    const id = setTimeout(() => lenis.resize(), 320);
+    return () => clearTimeout(id);
+  }, [activeTab, lenis]);
+
   const handleSelectTab = (tab: GccTab) => {
     setActiveTab(tab);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (lenis) {
+      lenis.scrollTo(0);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleScrollToLive = () => {
@@ -246,6 +272,14 @@ export default function Home() {
             background: "rgba(3, 7, 14, 0.88)",
           }}
         >
+          <GccStatusBar
+            connected={connected}
+            eventCount={events.length}
+            isRunning={isRunning}
+            activeTeamName={currentTeam?.name}
+            teamsCount={teams.length}
+            finishedCount={teams.filter((t) => t.status === "finished").length}
+          />
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -308,6 +342,9 @@ export default function Home() {
                     { id: "replay" as GccTab, label: "Replay", icon: RotateCcw },
                     { id: "hardware" as GccTab, label: "Hardware", icon: Cpu },
                     { id: "reports" as GccTab, label: "Reports", icon: BarChart3 },
+                    { id: "eventlog" as GccTab, label: "Event Log", icon: ScrollText },
+                    { id: "map" as GccTab, label: "Track Map", icon: Map },
+                    { id: "ai" as GccTab, label: "AI Analyst", icon: Sparkles },
                   ].map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -385,6 +422,34 @@ export default function Home() {
           {/* TAB 6: REPORTS */}
           {activeTab === "reports" && (
             <GccReports teams={teams} />
+          )}
+
+          {/* TAB 8: LIVE EVENT LOG */}
+          {activeTab === "eventlog" && (
+            <GccEventLog
+              teams={teams}
+              active={active}
+              events={events}
+              connected={connected}
+            />
+          )}
+
+          {/* TAB 9: RACE TRACK MAP */}
+          {activeTab === "map" && (
+            <GccTrackMap
+              active={active}
+              events={events}
+              connected={connected}
+            />
+          )}
+
+          {/* TAB 10: AI RACE ANALYST */}
+          {activeTab === "ai" && (
+            <GccAiAnalyst
+              teams={teams}
+              active={active}
+              events={events}
+            />
           )}
 
           {/* TAB 7: LIVE COMPETITION SPECTATOR ARENA (Original Core Preserved) */}
@@ -594,8 +659,9 @@ export default function Home() {
                 </div>
               </section>
 
-              {/* Main Arena Grid: Broadcast & Live Telemetry */}
-              <section className="two-col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.7fr) minmax(320px, 0.9fr)", gap: 18 }}>
+              {/* Main Arena Grid: Broadcast & Live Telemetry wrapped in Mechanical Blast Doors */}
+              <MechanicalBlastDoors>
+                <section className="two-col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.7fr) minmax(320px, 0.9fr)", gap: 18 }}>
                 {/* Live Broadcast Card */}
                 <div className="panel hud-panel" style={{ overflow: "hidden" }}>
                   <div
@@ -710,48 +776,50 @@ export default function Home() {
                       const cleared = checks.includes(n);
                       const label = gateLabels[n];
                       return (
-                        <div key={n} className={`gate-card ${cleared ? "cleared" : "pending"}`}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <div>
-                              <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: cleared ? "#00ff88" : "#8da3be" }}>
-                                {label.name}
+                        <TiltCard key={n} maxTilt={6} className="gate-tilt-wrap">
+                          <div className={`gate-card ${cleared ? "cleared" : "pending"}`}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div>
+                                <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: cleared ? "#00ff88" : "#8da3be" }}>
+                                  {label.name}
+                                </div>
+                                <div className="muted" style={{ fontSize: 10, marginTop: 2 }}>
+                                  {label.desc}
+                                </div>
                               </div>
-                              <div className="muted" style={{ fontSize: 10, marginTop: 2 }}>
-                                {label.desc}
-                              </div>
+                              <span
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  background: cleared ? "#00ff88" : "#35485e",
+                                  boxShadow: cleared ? "0 0 12px #00ff88" : "none",
+                                }}
+                              />
                             </div>
-                            <span
-                              style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: "50%",
-                                background: cleared ? "#00ff88" : "#35485e",
-                                boxShadow: cleared ? "0 0 12px #00ff88" : "none",
-                              }}
-                            />
-                          </div>
 
-                          {/* Animated Laser Beam */}
-                          <div className={`laser-beam ${cleared ? "active" : "standby"}`} />
+                            {/* Animated Laser Beam */}
+                            <div className={`laser-beam ${cleared ? "active" : "standby"}`} />
 
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
-                            <span
-                              className="mono"
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 700,
-                                color: cleared ? "#00ff88" : "#5d738c",
-                              }}
-                            >
-                              {cleared ? "CLEARED" : "PENDING"}
-                            </span>
-                            {cleared && (
-                              <span className="mono" style={{ fontSize: 10, color: "#a5f3d4" }}>
-                                PASSED
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+                              <span
+                                className="mono"
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  color: cleared ? "#00ff88" : "#5d738c",
+                                }}
+                              >
+                                {cleared ? "CLEARED" : "PENDING"}
                               </span>
-                            )}
+                              {cleared && (
+                                <span className="mono" style={{ fontSize: 10, color: "#a5f3d4" }}>
+                                  PASSED
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </TiltCard>
                       );
                     })}
                   </div>
@@ -807,6 +875,7 @@ export default function Home() {
                   </div>
                 </div>
               </section>
+            </MechanicalBlastDoors>
 
               {/* Second Row: Leaderboard & Checkpoint Log */}
               <section className="two-col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(300px, 0.7fr)", gap: 18, marginTop: 20 }}>
@@ -864,7 +933,11 @@ export default function Home() {
                             </div>
                           </div>
                           <strong className="digital" style={{ fontSize: 15, color: "#00f0ff" }}>
-                            {fmt(t.best_time_ms)}
+                            {t.best_time_ms ? (
+                              <CyberScrambleText text={fmt(t.best_time_ms)} duration={350} />
+                            ) : (
+                              "—"
+                            )}
                           </strong>
                           <div>
                             <span
@@ -912,7 +985,7 @@ export default function Home() {
                     <span className="pill pill-green">REALTIME</span>
                   </div>
 
-                  <div style={{ display: "grid", gap: 8, maxHeight: 310, overflowY: "auto", paddingRight: 4 }}>
+                  <div data-lenis-prevent style={{ display: "grid", gap: 8, maxHeight: 310, overflowY: "auto", paddingRight: 4 }}>
                     {events.length > 0 ? (
                       events.map((e) => (
                         <div
@@ -989,6 +1062,34 @@ export default function Home() {
                 </div>
               </section>
 
+              {/* NIRMAN-inspired Marquee Divider */}
+              <div className="marquee-shell" aria-hidden="true">
+                <div className="marquee-track">
+                  <span>NIRMAN 6.0 // LINE FOLLOWER ARENA</span>
+                  <span>•</span>
+                  <span>TRANSFORM WITH TECHNOLOGY</span>
+                  <span>•</span>
+                  <span>4-GATE ESP32 LASER TIMING</span>
+                  <span>•</span>
+                  <span>SILICON UNIVERSITY // 20.3533° N, 85.8266° E</span>
+                  <span>•</span>
+                  <span>NIRMAN 6.0 // LINE FOLLOWER ARENA</span>
+                  <span>•</span>
+                  <span>TRANSFORM WITH TECHNOLOGY</span>
+                  <span>•</span>
+                  <span>4-GATE ESP32 LASER TIMING</span>
+                  <span>•</span>
+                  <span>SILICON UNIVERSITY // 20.3533° N, 85.8266° E</span>
+                  <span>•</span>
+                </div>
+              </div>
+
+              {/* Arena Intel, Rulebook Modal & Race-Day FAQs */}
+              <NirmanRulebookFaq />
+
+              {/* Techfest-Style Interactive Bot Subsystem Inspector */}
+              <InteractiveBotInspector />
+
               {/* Footer */}
               <footer
                 style={{
@@ -1014,6 +1115,13 @@ export default function Home() {
       </AnimatePresence>
     </div>
   )}
+  <FloatingArenaMenu activeTab={activeTab} onSelectTab={handleSelectTab} />
+  <MissionControlHudBar
+    checksCount={checks.length}
+    totalGates={4}
+    activeRunTeam={active?.teams?.name ?? null}
+    isRunning={active?.status === "running"}
+  />
 </div>
 );
 }

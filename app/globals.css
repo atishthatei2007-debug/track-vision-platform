@@ -579,3 +579,105 @@ body::before {
     box-shadow: none !important;
   }
 }
+
+/* NIRMAN-inspired Chamfered Polygon Buttons & Marquee Ticker */
+.hud-chamfer {
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease, letter-spacing 0.2s ease;
+}
+
+.hud-chamfer:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+  letter-spacing: 0.12em;
+}
+
+/* Hide native cursor on desktop to prioritize dual-layer kinetic HUD cursor */
+@media (pointer: fine) {
+  body {
+    cursor: default;
+  }
+  button, a, input, select, textarea, [role="button"] {
+    cursor: pointer;
+  }
+}
+
+.marquee-shell {
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 240, 255, 0.22);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.22);
+  background: rgba(6, 13, 24, 0.72);
+  padding: 10px 0;
+  margin-top: 26px;
+}
+
+/* Subtle CRT Cyber Scanlines Overlay */
+body::after {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 80;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+/* P1, P2, P3 Metallic Shimmer Finishes */
+.podium-1 {
+  background: linear-gradient(90deg, rgba(255, 170, 0, 0.15) 0%, rgba(245, 186, 66, 0.08) 100%) !important;
+  border: 1px solid rgba(255, 170, 0, 0.6) !important;
+  box-shadow: 0 0 20px rgba(255, 170, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.podium-1::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+  animation: metallic-shimmer 4s infinite linear;
+  pointer-events: none;
+}
+
+.podium-2 {
+  background: linear-gradient(90deg, rgba(200, 220, 240, 0.12) 0%, rgba(160, 180, 200, 0.06) 100%) !important;
+  border: 1px solid rgba(200, 220, 240, 0.5) !important;
+  box-shadow: 0 0 16px rgba(200, 220, 240, 0.15) !important;
+}
+
+.podium-3 {
+  background: linear-gradient(90deg, rgba(220, 130, 80, 0.12) 0%, rgba(180, 100, 60, 0.06) 100%) !important;
+  border: 1px solid rgba(220, 130, 80, 0.45) !important;
+}
+
+@keyframes metallic-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 32px;
+  animation: nirman-marquee 26s linear infinite;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: #7cefff;
+  text-transform: uppercase;
+}
+
+@keyframes nirman-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

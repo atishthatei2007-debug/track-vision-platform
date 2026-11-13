@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import {
   Activity,
   Award,
@@ -31,6 +32,7 @@ export default function TrackVisionHero({
   onSelectTab,
   isBackground = false,
 }: TrackVisionHeroProps) {
+  const lenis = useLenis();
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -191,7 +193,11 @@ export default function TrackVisionHero({
     } else {
       const arenaEl = document.getElementById("spectator-arena");
       if (arenaEl) {
-        arenaEl.scrollIntoView({ behavior: "smooth" });
+        if (lenis) {
+          lenis.scrollTo(arenaEl);
+        } else {
+          arenaEl.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }
   };

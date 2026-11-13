@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import LenisProvider from "@/components/LenisProvider";
 import Preloader from "@/components/Preloader";
+import TechkritiCursor from "@/components/TechkritiCursor";
+import CyberParticlesCanvas from "@/components/CyberParticlesCanvas";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,7 +46,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body><Preloader />{children}</body>
+      <body>
+        <TechkritiCursor />
+        <CyberParticlesCanvas />
+        <LenisProvider>
+          <Preloader />
+          {children}
+        </LenisProvider>
+      </body>
     </html>
   );
 }

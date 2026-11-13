@@ -144,7 +144,7 @@ export default function RaceSchedulePanel({ teams, activeTeamId }: RaceScheduleP
       )}
 
       {/* Queue list */}
-      <div style={{ display: "grid", gap: 6, maxHeight: 340, overflowY: "auto", paddingRight: 2 }}>
+      <div data-lenis-prevent style={{ display: "grid", gap: 6, maxHeight: 340, overflowY: "auto", paddingRight: 2 }}>
         {sorted.map((team, idx) => {
           const cfg = STATUS_CONFIG[team.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.registered;
           const isActive = team.id === activeTeamId || team.status === "running";

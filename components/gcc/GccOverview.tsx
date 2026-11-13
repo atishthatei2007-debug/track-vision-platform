@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Activity,
   Award,
@@ -7,6 +8,7 @@ import {
   Clock,
   Cpu,
   Flame,
+  History,
   Radio,
   ShieldAlert,
   Timer,
@@ -14,6 +16,7 @@ import {
   Wifi,
   Zap,
 } from "lucide-react";
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 type Team = {
   id: string;
@@ -307,7 +310,7 @@ export default function GccOverview({
             </span>
           </div>
 
-          <div style={{ display: "grid", gap: 8, maxHeight: 280, overflowY: "auto" }}>
+          <div data-lenis-prevent style={{ display: "grid", gap: 8, maxHeight: 280, overflowY: "auto" }}>
             {events.length > 0 ? (
               events.slice(-6).reverse().map((e) => (
                 <div
@@ -358,6 +361,236 @@ export default function GccOverview({
           </div>
         </div>
       </div>
+
+      {/* ── Run History Timeline (Flow -> Task -> Subtask inspired) ── */}
+      <RunHistorySection
+        teams={teams}
+        activeId={active?.id}
+        activeStatus={active?.status}
+        liveEventsCount={events.length}
+      />
+    </div>
+  );
+}
+
+function RunHistorySection({
+  teams,
+  activeId,
+  activeStatus,
+  liveEventsCount,
+}: {
+  teams: Team[];
+  activeId?: string;
+  activeStatus?: string;
+  liveEventsCount: number;
+}) {
+  const [runs, setRuns] = useState<Run[]>([]);
+  const [checkpointsByRun, setCheckpointsByRun] = useState<Record<string, number[]>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const db = getSupabaseBrowser();
+    if (!db) {
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    const fetchHistory = async () => {
+      const [{ data: runRows }, { data: cpRows }] = await Promise.all([
+        db
+          .from("runs")
+          .select("*, teams(id, code, name, college, best_time_ms, status)")
+          .order("created_at", { ascending: false })
+          .limit(25),
+        db
+          .from("checkpoint_events")
+          .select("id, run_id, checkpoint_no, detected_at")
+          .order("checkpoint_no"),
+      ]);
+
+      if (!mounted) return;
+      if (runRows) setRuns(runRows as Run[]);
+      if (cpRows) {
+        const grouped: Record<string, number[]> = {};
+        for (const cp of cpRows as Checkpoint[]) {
+          if (!grouped[cp.run_id]) grouped[cp.run_id] = [];
+          grouped[cp.run_id].push(cp.checkpoint_no);
+        }
+        setCheckpointsByRun(grouped);
+      }
+      setLoading(false);
+    };
+
+    fetchHistory();
+    return () => {
+      mounted = false;
+    };
+  }, [activeId, activeStatus, liveEventsCount]);
+
+  const statusColor = (status: string) => {
+    switch (status) {
+      case "running":
+        return "#00f0ff";
+      case "finished":
+        return "#00ff88";
+      case "aborted":
+      case "disqualified":
+        return "#ff496b";
+      default:
+        return "#8da3be";
+    }
+  };
+
+  return (
+    <div className="gcc-card" style={{ padding: 22 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+          paddingBottom: 12,
+          borderBottom: "1px solid rgba(45, 75, 110, 0.3)",
+          flexWrap: "wrap",
+          gap: 10,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <History size={18} color="#ff6a00" />
+          <strong style={{ fontSize: 15, letterSpacing: "0.06em" }}>
+            RUN HISTORY TIMELINE
+          </strong>
+        </div>
+        <span className="gcc-tag">
+          {runs.length} RECORDED {runs.length === 1 ? "RUN" : "RUNS"}
+        </span>
+      </div>
+
+      {loading ? (
+        <div
+          className="mono muted"
+          style={{ textAlign: "center", padding: "32px 16px", fontSize: 11 }}
+        >
+          Loading run history...
+        </div>
+      ) : runs.length === 0 ? (
+        <div
+          className="mono muted"
+          style={{ textAlign: "center", padding: "32px 16px", fontSize: 11 }}
+        >
+          No recorded runs yet. Start a race from Race Control to populate history.
+        </div>
+      ) : (
+        <div data-lenis-prevent style={{ display: "grid", gap: 8, maxHeight: 360, overflowY: "auto" }}>
+          {runs.map((run) => {
+            const team = teams.find((t) => t.id === run.team_id) || run.teams;
+            const cps = checkpointsByRun[run.id] ?? [];
+            const color = statusColor(run.status);
+
+            return (
+              <div
+                key={run.id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(160px, 1.4fr) 110px 140px 100px 120px",
+                  gap: 12,
+                  alignItems: "center",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  background: "rgba(6, 12, 20, 0.7)",
+                  border: `1px solid ${
+                    run.status === "running"
+                      ? "rgba(0, 240, 255, 0.4)"
+                      : "rgba(45, 75, 110, 0.3)"
+                  }`,
+                }}
+              >
+                {/* Team */}
+                <div>
+                  <strong style={{ fontSize: 13, color: "#fff" }}>
+                    {team?.name ?? "Unknown Team"}
+                  </strong>
+                  <div className="mono muted" style={{ fontSize: 10 }}>
+                    {team?.code ?? "—"} · {new Date(run.started_at).toLocaleTimeString()}
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <span
+                    className="mono"
+                    style={{
+                      fontSize: 10,
+                      padding: "3px 8px",
+                      borderRadius: 6,
+                      color,
+                      background: `${color}15`,
+                      border: `1px solid ${color}40`,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {run.status.toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Checkpoint sequence */}
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  {[1, 2, 3, 4].map((gate) => {
+                    const hit = cps.includes(gate);
+                    return (
+                      <span
+                        key={gate}
+                        className="mono"
+                        title={`Gate 0${gate}: ${hit ? "Cleared" : "Not reached"}`}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: 6,
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 10,
+                          fontWeight: 700,
+                          background: hit
+                            ? "rgba(0, 255, 136, 0.16)"
+                            : "rgba(25, 40, 60, 0.45)",
+                          border: `1px solid ${
+                            hit ? "rgba(0, 255, 136, 0.5)" : "rgba(45, 75, 110, 0.35)"
+                          }`,
+                          color: hit ? "#00ff88" : "#5d738c",
+                        }}
+                      >
+                        {gate}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Elapsed time */}
+                <div
+                  className="digital"
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: run.elapsed_ms != null ? "#00f0ff" : "#6c84a0",
+                    textAlign: "right",
+                  }}
+                >
+                  {fmt(run.elapsed_ms)}
+                </div>
+
+                {/* Run ID */}
+                <div
+                  className="mono muted"
+                  style={{ fontSize: 10, textAlign: "right" }}
+                >
+                  #{run.id.slice(0, 8)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

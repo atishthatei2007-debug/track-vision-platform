@@ -6,9 +6,12 @@ import {
   Award,
   BarChart3,
   Cpu,
+  Map,
   Radio,
   RotateCcw,
+  ScrollText,
   Shield,
+  Sparkles,
   Users,
   Zap,
 } from "lucide-react";
@@ -21,7 +24,10 @@ export type GccTab =
   | "leaderboard"
   | "replay"
   | "hardware"
-  | "reports";
+  | "reports"
+  | "eventlog"
+  | "map"
+  | "ai";
 
 interface GccNavProps {
   activeTab: GccTab;
@@ -217,6 +223,36 @@ export default function GccNav({
           >
             <BarChart3 size={14} color={activeTab === "reports" ? "#ff6a00" : "#8da3be"} />
             <span>Reports</span>
+          </button>
+
+          {/* 9. Event Log */}
+          <button
+            onClick={() => onSelectTab("eventlog")}
+            className={`gcc-tab-btn ${activeTab === "eventlog" ? "active" : ""}`}
+            title="Live Telemetry Event Log"
+          >
+            <ScrollText size={14} color={activeTab === "eventlog" ? "#ff6a00" : "#8da3be"} />
+            <span>Event Log</span>
+          </button>
+
+          {/* 10. Track Map */}
+          <button
+            onClick={() => onSelectTab("map")}
+            className={`gcc-tab-btn ${activeTab === "map" ? "active" : ""}`}
+            title="Race Track Topology & Gate Map"
+          >
+            <Map size={14} color={activeTab === "map" ? "#ff6a00" : "#8da3be"} />
+            <span>Track Map</span>
+          </button>
+
+          {/* 11. AI Analyst */}
+          <button
+            onClick={() => onSelectTab("ai")}
+            className={`gcc-tab-btn ${activeTab === "ai" ? "active" : ""}`}
+            title="AI Race Analyst (Gemini)"
+          >
+            <Sparkles size={14} color={activeTab === "ai" ? "#ff6a00" : "#8da3be"} />
+            <span>AI Analyst</span>
           </button>
         </div>
 
