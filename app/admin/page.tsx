@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import LiveKitBroadcaster from "@/components/livekit/LiveKitBroadcaster";
+import ObsWhipIngressPanel from "@/components/livekit/ObsWhipIngressPanel";
 import TeamRaceRecorder from "@/components/TeamRaceRecorder";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
@@ -847,7 +848,10 @@ export default function AdminPage() {
               </span>
             </div>
 
-            {/* LiveKit Camera Broadcaster (DroidCam / Webcam Uplink) */}
+            {/* OBS Studio WHIP Ingress Uplink (Primary Studio Uplink) */}
+            <ObsWhipIngressPanel session={session} />
+
+            {/* LiveKit Camera Broadcaster (DroidCam / Webcam Uplink - Instant Backup) */}
             <LiveKitBroadcaster session={session} />
 
             {/* Team Stream Auto-Recorder */}

@@ -282,7 +282,7 @@ export default function LiveKitBroadcaster({ session }: LiveKitBroadcasterProps)
       // D. Initialize LiveKit Room & Bind Lifecycle Events
       const room = new Room({
         adaptiveStream: false,
-        dynacast: false,
+        dynacast: true,
       });
       roomRef.current = room;
 
@@ -330,7 +330,12 @@ export default function LiveKitBroadcaster({ session }: LiveKitBroadcasterProps)
       await room.localParticipant.publishTrack(videoTrack, {
         name: "track-camera",
         source: Track.Source.Camera,
-        simulcast: false,
+        simulcast: true,
+        videoEncoding: VideoPresets.h720.encoding,
+        videoSimulcastLayers: [
+          VideoPresets.h360,
+          VideoPresets.h180,
+        ],
       });
 
       if (audioTrack) {

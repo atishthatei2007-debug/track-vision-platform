@@ -135,10 +135,9 @@ export default function LiveKitSpectatorPlayer() {
         }
       };
 
-      // 3. Initialize LiveKit Room instance (Disable dynacast & adaptiveStream to ensure instant playback)
+      // 3. Initialize LiveKit Room instance with AdaptiveStream enabled
       const room = new Room({
-        adaptiveStream: false,
-        dynacast: false,
+        adaptiveStream: true,
       });
       roomRef.current = room;
 
