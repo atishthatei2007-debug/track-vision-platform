@@ -10,10 +10,12 @@ import {
   Award,
   BarChart3,
   CheckCircle2,
+  ChevronRight,
   Clock,
   Cpu,
   Flame,
   Map,
+  Play,
   Radio,
   RotateCcw,
   ScrollText,
@@ -22,12 +24,14 @@ import {
   Timer,
   Trophy,
   Users,
+  Video,
   Wifi,
+  X,
   Zap,
 } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/supabase-browser";
 import TrackVisionHero from "@/components/TrackVisionHero";
-import { type GccTab } from "@/components/gcc/GccNav";
+import GccNav, { type GccTab } from "@/components/gcc/GccNav";
 import GccOverview from "@/components/gcc/GccOverview";
 import GccTeamsDirectory from "@/components/gcc/GccTeamsDirectory";
 import GccLeaderboardTable from "@/components/gcc/GccLeaderboardTable";
@@ -46,11 +50,9 @@ import EventCountdown from "@/components/EventCountdown";
 import LiveKitSpectatorPlayer from "@/components/livekit/LiveKitSpectatorPlayer";
 import NirmanRulebookFaq from "@/components/NirmanRulebookFaq";
 import FloatingArenaMenu from "@/components/FloatingArenaMenu";
-import TiltCard from "@/components/kinetics/TiltCard";
-import CyberScrambleText from "@/components/kinetics/CyberScrambleText";
-import MissionControlHudBar from "@/components/kinetics/MissionControlHudBar";
 import MechanicalBlastDoors from "@/components/kinetics/MechanicalBlastDoors";
 import InteractiveBotInspector from "@/components/kinetics/InteractiveBotInspector";
+import MissionControlHudBar from "@/components/kinetics/MissionControlHudBar";
 
 type Team = {
   id: string;
@@ -107,12 +109,12 @@ export default function Home() {
   const [connected, setConnected] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
-  // GCC Smart Race Control Active Module (defaults to Opening Hero "home")
+  // Active Navigation Module
   const [activeTab, setActiveTab] = useState<GccTab>("home");
+  const [cinematicOpen, setCinematicOpen] = useState(false);
+
   const lenis = useLenis();
-  // Audio: track previous checks to only beep on NEW checkpoint events
   const prevChecksRef = useRef<number[]>([]);
-  // Audio: track previous run status to detect race start/finish
   const prevRunStatusRef = useRef<string | null>(null);
 
   const videoId = process.env.NEXT_PUBLIC_YOUTUBE_VIDEO_ID;
@@ -156,7 +158,6 @@ export default function Home() {
           const arr = (ev ?? []) as Checkpoint[];
           setEvents(arr);
           const newChecks = arr.map((x) => x.checkpoint_no);
-          // Audio: Beep for each newly detected checkpoint
           const prevChecks = prevChecksRef.current;
           for (const cp of newChecks) {
             if (!prevChecks.includes(cp)) {
@@ -238,890 +239,704 @@ export default function Home() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#03060a", position: "relative" }}>
-      {/* ── PERSISTENT SHOWCASE ANIMATION VIDEO LAYER (Edge-to-Edge Fullscreen 100vh) ── */}
-      <div
-        style={{
-          position: activeTab === "home" ? "relative" : "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: "100vh",
-          width: "100%",
-          zIndex: 0,
-          pointerEvents: activeTab === "home" ? "auto" : "none",
-        }}
-      >
-        <TrackVisionHero
-          onEnterArena={handleScrollToLive}
-          onSelectTab={handleSelectTab}
-          isBackground={activeTab !== "home"}
-        />
-      </div>
+    <div style={{ minHeight: "100vh", backgroundColor: "#FFF9F3", color: "#292929", position: "relative" }}>
+      {/* ── AUDIO SOUND ENGINE ── */}
+      <AudioEngine />
 
-      {/* ── DYNAMIC PORTAL OVERLAY CONTAINER (Translucent motorsport glass over the animation video) ── */}
-      {activeTab !== "home" && (
-        <div
-          style={{
-            position: "relative",
-            zIndex: 10,
-            minHeight: "100vh",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
-            background: "rgba(3, 7, 14, 0.88)",
-          }}
-        >
-          <GccStatusBar
-            connected={connected}
-            eventCount={events.length}
-            isRunning={isRunning}
-            activeTeamName={currentTeam?.name}
-            teamsCount={teams.length}
-            finishedCount={teams.filter((t) => t.status === "finished").length}
-          />
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                maxWidth: 1440,
-                margin: "0 auto",
-                padding: "24px 24px 60px",
-              }}
+      {/* ── PERSISTENT TOP NAVIGATION BAR ── */}
+      <GccNav
+        activeTab={activeTab}
+        onSelectTab={handleSelectTab}
+        connected={connected}
+        activeRunCount={isRunning ? 1 : 0}
+      />
+
+      {/* ── STATUS BAR ── */}
+      <GccStatusBar
+        connected={connected}
+        eventCount={events.length}
+        isRunning={isRunning}
+        activeTeamName={currentTeam?.name}
+        teamsCount={teams.length}
+        finishedCount={teams.filter((t) => t.status === "finished").length}
+      />
+
+      {/* ── OPTIONAL 3D CINEMATIC INTRO MODAL ── */}
+      {cinematicOpen && (
+        <div className="fixed inset-0 z-[100] bg-[#03060a] flex flex-col">
+          <div className="bg-[#292929] text-white px-4 py-2.5 flex justify-between items-center border-b-2 border-[#FF8A32] z-20">
+            <span className="font-mono text-xs font-bold text-[#FF8A32] flex items-center gap-2">
+              <Zap size={14} /> 3D ROBOT CINEMATIC SHOWCASE // NIRMAN 6.0
+            </span>
+            <button
+              onClick={() => setCinematicOpen(false)}
+              className="font-mono text-xs font-black px-3 py-1 bg-[#FF8A32] text-[#292929] border border-black shadow-[1.5px_1.5px_0_#000] rounded hover:bg-[#ff9c4e] cursor-pointer"
             >
-              {/* Portal Header with Fast Portal Navigation & Return to Showcase */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 16,
-                  flexWrap: "wrap",
-                  marginBottom: 24,
-                  paddingBottom: 16,
-                  borderBottom: "1px solid rgba(45, 75, 110, 0.35)",
-                }}
-              >
-                {/* Return Button */}
-                <button
-                  onClick={() => handleSelectTab("home")}
-                  className="btn"
-                  style={{
-                    fontSize: 12,
-                    padding: "8px 18px",
-                    gap: 8,
-                    background: "rgba(10, 20, 34, 0.85)",
-                    border: "1px solid rgba(0, 240, 255, 0.4)",
-                    color: "#00f0ff",
-                    boxShadow: "0 0 15px rgba(0, 240, 255, 0.15)",
-                  }}
-                >
-                  <Zap size={14} color="#00f0ff" />
-                  <span>← RETURN TO 3D SHOWCASE ANIMATION</span>
-                </button>
+              ✕ RETURN TO RACE CONTROL
+            </button>
+          </div>
+          <div className="relative flex-1 w-full h-full">
+            <TrackVisionHero
+              onEnterArena={() => {
+                setCinematicOpen(false);
+                handleScrollToLive();
+              }}
+              onSelectTab={(tab) => {
+                setCinematicOpen(false);
+                handleSelectTab(tab);
+              }}
+              isBackground={false}
+            />
+          </div>
+        </div>
+      )}
 
-                {/* Portal Quick-Tabs Switcher */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    overflowX: "auto",
-                    padding: "4px 0",
-                  }}
-                >
-                  {[
-                    { id: "live" as GccTab, label: "Live Arena", icon: Radio },
-                    { id: "overview" as GccTab, label: "Overview", icon: Activity },
-                    { id: "teams" as GccTab, label: "Teams", icon: Users },
-                    { id: "leaderboard" as GccTab, label: "Leaderboard", icon: Award },
-                    { id: "replay" as GccTab, label: "Replay", icon: RotateCcw },
-                    { id: "hardware" as GccTab, label: "Hardware", icon: Cpu },
-                    { id: "reports" as GccTab, label: "Reports", icon: BarChart3 },
-                    { id: "eventlog" as GccTab, label: "Event Log", icon: ScrollText },
-                    { id: "map" as GccTab, label: "Track Map", icon: Map },
-                    { id: "ai" as GccTab, label: "AI Analyst", icon: Sparkles },
-                  ].map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = activeTab === tab.id;
-                    return (
+      {/* ── MAIN CONTENT CONTAINER ── */}
+      <main className="max-w-[1520px] mx-auto px-4 sm:px-6 pt-4 pb-20">
+        <AnimatePresence mode="wait">
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 01: SHOWCASE (HOMEPAGE — PADDOCK GRANDSTAND ARCADE HYBRID)
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "home" && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-8"
+            >
+              {/* Main Hero Card */}
+              <section className="bg-[#FFFFFF] border-[3px] border-[#292929] rounded shadow-[6px_6px_0px_#292929] overflow-hidden">
+                {/* Vintage Grand Prix Monochrome Checkered Ribbon */}
+                <div className="h-4 bg-[#292929] flex overflow-hidden border-b-2 border-[#292929]">
+                  {Array.from({ length: 64 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-4 h-full shrink-0 ${
+                        i % 2 === 0 ? "bg-[#FFFFFF]" : "bg-[#292929]"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <div className="p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  {/* Left: Editorial Hero Details */}
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFB36B] border-2 border-[#292929] rounded font-mono text-xs font-black tracking-wider uppercase shadow-[2px_2px_0px_#292929]">
+                        <Flame size={14} className="text-[#292929]" />
+                        SEASON 2026 // STAGE 01
+                      </span>
+                      <span className="font-mono text-xs px-2.5 py-1 bg-[#F5D9C0] border-2 border-[#292929] rounded font-bold shadow-[2px_2px_0px_#292929]">
+                        CIRCUIT NIRMAN 6.0
+                      </span>
+                    </div>
+
+                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#292929] tracking-tight leading-[1.1]">
+                      THE FUTURE OF{" "}
+                      <span className="bg-[#FF8A32] text-[#292929] px-2.5 py-0.5 border-[2.5px] border-[#292929] shadow-[4px_4px_0px_#292929] inline-block -rotate-1">
+                        ROBOTICS RACING
+                      </span>
+                    </h1>
+
+                    <p className="font-mono text-sm sm:text-base text-[#444] leading-relaxed max-w-xl font-medium">
+                      Official high-precision race control for autonomous line-following robotics.
+                      Integrated with 4-point optical sensor gates, sub-millisecond hardware timing,
+                      and live motorsport telemetry.
+                    </p>
+
+                    {/* REFINED CHUNKY NEOBRUTALIST ACTION BUTTONS */}
+                    <div className="pt-2 flex flex-wrap gap-4">
+                      {/* Primary Button (Racing Orange) */}
                       <button
-                        key={tab.id}
-                        onClick={() => handleSelectTab(tab.id)}
-                        className={`gcc-tab-btn ${isActive ? "active" : ""}`}
-                        style={{ fontSize: 11, padding: "6px 12px" }}
+                        onClick={handleScrollToLive}
+                        className="font-mono text-sm font-black px-7 py-4 bg-[#FF8A32] text-[#292929] border-[2.5px] border-[#292929] rounded shadow-[4px_4px_0px_#292929] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[7px_7px_0px_#292929] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2.5 cursor-pointer"
                       >
-                        <Icon size={13} color={isActive ? "#ff6a00" : "#8da3be"} />
-                        <span>{tab.label}</span>
+                        <Play size={18} fill="#292929" />
+                        <span>ENTER LIVE ARENA</span>
                       </button>
+
+                      {/* Secondary Button (Leaderboard) */}
+                      <button
+                        onClick={() => handleSelectTab("leaderboard")}
+                        className="font-mono text-sm font-black px-7 py-4 bg-[#FFFFFF] text-[#292929] border-[2.5px] border-[#292929] rounded shadow-[4px_4px_0px_#292929] hover:-translate-x-1 hover:-translate-y-1 hover:bg-[#F5D9C0] hover:shadow-[7px_7px_0px_#292929] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2.5 cursor-pointer"
+                      >
+                        <Trophy size={18} />
+                        <span>VIEW LEADERBOARD</span>
+                      </button>
+
+                      {/* 3D Cinematic Trigger Button */}
+                      <button
+                        onClick={() => setCinematicOpen(true)}
+                        className="font-mono text-sm font-black px-5 py-4 bg-[#FFF9F3] text-[#292929] border-[2.5px] border-[#292929] rounded shadow-[3.5px_3.5px_0px_#292929] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#F5D9C0] transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <Video size={16} />
+                        <span>3D CINEMATIC</span>
+                      </button>
+                    </div>
+
+                    {/* Bolder Orange Benchmark Feature Block */}
+                    <div className="bg-[#FFB36B] border-[2.5px] border-[#292929] rounded p-4 shadow-[4px_4px_0px_#292929] flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-[#FFFFFF] border-2 border-[#292929] rounded flex items-center justify-center font-bold text-lg shadow-[1.5px_1.5px_0px_#292929] shrink-0">
+                          ⚡
+                        </div>
+                        <div>
+                          <div className="font-mono text-xs font-black text-[#292929] uppercase">
+                            BENCHMARK LAP RECORD: {fastestLap?.best_time_ms ? fmt(fastestLap.best_time_ms) : "12.45s"}
+                          </div>
+                          <div className="font-mono text-[11px] text-[#292929]/80 font-bold">
+                            Set by <span className="underline font-black">{fastestLap?.name ?? "CyberStriker"}</span> ({fastestLap?.code ?? "TV-02"}) · Sector 1: 3.89s
+                          </div>
+                        </div>
+                      </div>
+                      <span className="hidden sm:inline-block font-mono text-[10px] font-black px-2 py-1 bg-[#292929] text-white rounded shrink-0">
+                        AUTHENTICATED
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right: Official Stopwatch Box */}
+                  <div className="lg:col-span-5 bg-[#FFF9F3] border-[2.5px] border-[#292929] rounded p-6 shadow-[5px_5px_0px_#292929] space-y-4">
+                    <div className="flex justify-between items-center border-b-2 border-[#292929] pb-3">
+                      <span className="font-mono text-xs font-black text-[#FF8A32] flex items-center gap-1.5 uppercase">
+                        <Timer size={16} /> OFFICIAL RACE STOPWATCH
+                      </span>
+                      <span
+                        className={`font-mono text-[10px] font-black px-2 py-0.5 rounded border border-[#292929] ${
+                          isRunning ? "bg-[#FF8A32] text-[#292929] animate-pulse" : "bg-[#22c55e] text-white"
+                        }`}
+                      >
+                        {isRunning ? "● LIVE ON TRACK" : "CIRCUIT READY"}
+                      </span>
+                    </div>
+
+                    {/* Digital Timing Panel */}
+                    <div className="text-center py-5 bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded shadow-[3px_3px_0px_#292929]">
+                      <div className="font-mono text-[11px] text-[#A3A3A3] font-bold uppercase tracking-widest">
+                        CIRCUIT ELAPSED DURATION
+                      </div>
+                      <div className="font-mono text-5xl sm:text-6xl font-black text-[#292929] tracking-tight my-1">
+                        {elapsed.toFixed(2)}<span className="text-2xl text-[#FF8A32]">s</span>
+                      </div>
+                      <div className="font-mono text-xs text-[#292929] font-bold">
+                        ACTIVE ROBOT: <span className="text-[#FF8A32] font-black">{currentTeam?.name ?? "No Active Heat"}</span>
+                      </div>
+                      <div className="font-mono text-[10px] text-[#A3A3A3] mt-0.5 font-bold">
+                        {currentTeam?.college ?? "Silicon Institute of Technology"}
+                      </div>
+                    </div>
+
+                    {/* Progress & Sector Metrics */}
+                    <div className="grid grid-cols-2 gap-2 text-center font-mono text-xs">
+                      <div className="p-3 bg-[#FFFFFF] border-2 border-[#292929] rounded shadow-[2px_2px_0px_#292929]">
+                        <div className="text-[10px] text-[#A3A3A3] font-bold">GATES CLEARED</div>
+                        <div className="font-black text-lg text-[#292929]">{cpCount} / 4 GATES</div>
+                      </div>
+                      <div className="p-3 bg-[#FFFFFF] border-2 border-[#292929] rounded shadow-[2px_2px_0px_#292929]">
+                        <div className="text-[10px] text-[#A3A3A3] font-bold">COURSE PROGRESS</div>
+                        <div className="font-black text-lg text-[#FF8A32]">{Math.round((cpCount / 4) * 100)}%</div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar Container */}
+                    <div className="h-3 bg-[#E8E8E8] border-2 border-[#292929] rounded overflow-hidden">
+                      <div
+                        className="h-full bg-[#FF8A32] border-r-2 border-[#292929] transition-all duration-300"
+                        style={{ width: `${(cpCount / 4) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Optical Sensor Gates (Gates 01–04) */}
+              <section className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b-2 border-[#292929] gap-2">
+                  <div className="flex items-center gap-2">
+                    <Cpu size={20} className="text-[#FF8A32]" />
+                    <h2 className="font-mono text-sm sm:text-base font-black uppercase text-[#292929] tracking-wider">
+                      OPTICAL SENSOR GATES // BEAM-BREAK REALTIME TELEMETRY
+                    </h2>
+                  </div>
+                  <span className="font-mono text-xs font-bold text-[#A3A3A3]">
+                    ESP32 HARDWARE INTERRUPT (ADC1 SENSORS)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map((gateNo) => {
+                    const isCleared = checks.includes(gateNo);
+                    const label = gateLabels[gateNo];
+                    const ev = events.find((e) => e.checkpoint_no === gateNo);
+                    const timeStr = ev ? new Date(ev.detected_at).toLocaleTimeString() : "--:--:--";
+
+                    return (
+                      <div
+                        key={gateNo}
+                        className={`border-[2.5px] border-[#292929] rounded p-4.5 shadow-[4px_4px_0px_#292929] transition-all ${
+                          isCleared
+                            ? "bg-[#FFFFFF] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#292929]"
+                            : "bg-[#FFF9F3] opacity-80 border-dashed"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-2.5">
+                          <span className="font-mono text-xs font-black bg-[#F5D9C0] px-2.5 py-1 border border-[#292929] rounded shadow-[1px_1px_0px_#292929]">
+                            GATE 0{gateNo}
+                          </span>
+                          <span
+                            className={`font-mono text-[10px] font-black px-2 py-0.5 rounded border border-[#292929] ${
+                              isCleared
+                                ? "bg-[#FF8A32] text-[#292929] shadow-[1px_1px_0px_#292929]"
+                                : "bg-[#E8E8E8] text-[#A3A3A3]"
+                            }`}
+                          >
+                            {isCleared ? "CLEARED" : isRunning ? "ARMED" : "WAITING"}
+                          </span>
+                        </div>
+
+                        <div className="font-mono text-xs text-[#A3A3A3] font-bold">
+                          {label.desc}
+                        </div>
+                        <div className="font-mono text-[10px] text-[#FF8A32] font-black mb-2">
+                          Sector {gateNo}
+                        </div>
+
+                        <div className="font-mono text-2xl font-black text-[#292929]">
+                          {isCleared ? timeStr : "—"}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
-
-                {/* Right Quick Link to Admin Console */}
-                <Link
-                  href="/admin"
-                  className="btn"
-                  style={{
-                    fontSize: 11,
-                    padding: "7px 14px",
-                    gap: 6,
-                    background: "rgba(10, 20, 34, 0.75)",
-                    border: "1px solid rgba(0, 240, 255, 0.35)",
-                  }}
-                >
-                  <Shield size={13} color="#00f0ff" />
-                  <span>Race Control</span>
-                </Link>
-              </div>
-
-              {/* TAB 1: OVERVIEW */}
-              {activeTab === "overview" && (
-            <GccOverview
-              teams={teams}
-              active={active}
-              events={events}
-              connected={connected}
-              onGoToLive={handleScrollToLive}
-            />
-          )}
-
-          {/* TAB 2: TEAMS DIRECTORY */}
-          {activeTab === "teams" && (
-            <GccTeamsDirectory
-              teams={teams}
-              activeTeamId={active?.team_id}
-            />
-          )}
-
-          {/* TAB 3: LEADERBOARD */}
-          {activeTab === "leaderboard" && (
-            <GccLeaderboardTable
-              teams={teams}
-              activeTeamId={active?.team_id}
-            />
-          )}
-
-          {/* TAB 4: REPLAY CENTER */}
-          {activeTab === "replay" && (
-            <GccReplayCenter videoId={videoId} />
-          )}
-
-          {/* TAB 5: HARDWARE MONITOR */}
-          {activeTab === "hardware" && (
-            <GccHardwareMonitor
-              connected={connected}
-              eventCount={events.length}
-            />
-          )}
-
-          {/* TAB 6: REPORTS */}
-          {activeTab === "reports" && (
-            <GccReports teams={teams} />
-          )}
-
-          {/* TAB 8: LIVE EVENT LOG */}
-          {activeTab === "eventlog" && (
-            <GccEventLog
-              teams={teams}
-              active={active}
-              events={events}
-              connected={connected}
-            />
-          )}
-
-          {/* TAB 9: RACE TRACK MAP */}
-          {activeTab === "map" && (
-            <GccTrackMap
-              active={active}
-              events={events}
-              connected={connected}
-            />
-          )}
-
-          {/* TAB 10: AI RACE ANALYST */}
-          {activeTab === "ai" && (
-            <GccAiAnalyst
-              teams={teams}
-              active={active}
-              events={events}
-            />
-          )}
-
-          {/* TAB 7: LIVE COMPETITION SPECTATOR ARENA (Original Core Preserved) */}
-          {activeTab === "live" && (
-            <>
-              {/* Arena Section Heading */}
-              <header
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 18,
-                  flexWrap: "wrap",
-                  marginBottom: 24,
-                  paddingBottom: 20,
-                  borderBottom: "1px solid rgba(45, 75, 110, 0.3)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: 14,
-                      background: "radial-gradient(circle, #10243b 0%, #060e18 100%)",
-                      border: "1px solid rgba(0, 240, 255, 0.35)",
-                      display: "grid",
-                      placeItems: "center",
-                      boxShadow: "0 0 20px rgba(0, 240, 255, 0.2)",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img
-                      src="/track-vision-logo.png"
-                      alt="Track Vision"
-                      width={40}
-                      height={40}
-                      style={{ objectFit: "contain", filter: "drop-shadow(0 0 8px rgba(0, 240, 255, 0.5))" }}
-                    />
-                  </div>
-                  <div>
-                    <div
-                      className="mono"
-                      style={{
-                        fontSize: 11,
-                        color: "#ffaa00",
-                        letterSpacing: "0.22em",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Zap size={13} color="#ffaa00" /> NIRMAN 6.0 // COMPETITION CONTROL
-                    </div>
-                    <div
-                      className="digital"
-                      style={{
-                        fontSize: 26,
-                        fontWeight: 900,
-                        letterSpacing: "0.08em",
-                        marginTop: 2,
-                      }}
-                    >
-                      LIVE ARENA{" "}
-                      <span
-                        style={{
-                          color: "#ff6a00",
-                          textShadow: "0 0 20px rgba(255, 106, 0, 0.6)",
-                        }}
-                      >
-                        TELEMETRY
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                  <span className="pill">
-                    <span className="live-beacon" /> LIVE ARENA
-                  </span>
-                  <span
-                    className="mono"
-                    style={{
-                      fontSize: 11,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 7,
-                      background: "rgba(10, 20, 32, 0.6)",
-                      padding: "6px 12px",
-                      borderRadius: 20,
-                      border: "1px solid rgba(45, 75, 110, 0.4)",
-                      color: connected ? "#00ff88" : "#8da3be",
-                    }}
-                  >
-                    <Wifi size={13} color={connected ? "#00ff88" : "#8da3be"} />
-                    {connected ? "REALTIME SYNCED" : "DEMO / STANDBY"}
-                  </span>
-                  <Link href="/admin" className="btn btn-primary" style={{ fontSize: 12, padding: "8px 16px" }}>
-                    <Shield size={14} />
-                    Organizer Admin
-                  </Link>
-                </div>
-              </header>
-
-              {/* Quick Telemetry Chips */}
-              <section
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-                  gap: 14,
-                  marginBottom: 20,
-                }}
-              >
-                <div className="panel hud-panel" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
-                      background: "rgba(0, 240, 255, 0.1)",
-                      border: "1px solid rgba(0, 240, 255, 0.3)",
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    <Trophy size={20} color="#00f0ff" />
-                  </div>
-                  <div>
-                    <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.1em" }}>TRACK RECORD</div>
-                    <div className="digital" style={{ fontSize: 18, color: "#fff", fontWeight: 700 }}>
-                      {fastestLap?.best_time_ms ? fmt(fastestLap.best_time_ms) : "--.--s"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="panel hud-panel" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
-                      background: "rgba(255, 170, 0, 0.1)",
-                      border: "1px solid rgba(255, 170, 0, 0.3)",
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    <Cpu size={20} color="#ffaa00" />
-                  </div>
-                  <div>
-                    <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.1em" }}>ESP32 SENSORS</div>
-                    <div className="digital" style={{ fontSize: 18, color: "#ffaa00", fontWeight: 700 }}>
-                      4 CHANNELS ACTIVE
-                    </div>
-                  </div>
-                </div>
-
-                <div className="panel hud-panel" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
-                      background: "rgba(0, 255, 136, 0.1)",
-                      border: "1px solid rgba(0, 255, 136, 0.3)",
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    <Award size={20} color="#00ff88" />
-                  </div>
-                  <div>
-                    <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.1em" }}>REGISTERED TEAMS</div>
-                    <div className="digital" style={{ fontSize: 18, color: "#00ff88", fontWeight: 700 }}>
-                      {teams.length} COMPETITORS
-                    </div>
-                  </div>
-                </div>
-
-                <div className="panel hud-panel" style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 10,
-                      background: isRunning ? "rgba(255, 42, 85, 0.15)" : "rgba(45, 75, 110, 0.2)",
-                      border: `1px solid ${isRunning ? "rgba(255, 42, 85, 0.5)" : "rgba(45, 75, 110, 0.4)"}`,
-                      display: "grid",
-                      placeItems: "center",
-                    }}
-                  >
-                    <Timer size={20} color={isRunning ? "#ff496b" : "#8da3be"} />
-                  </div>
-                  <div>
-                    <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.1em" }}>ARENA STATUS</div>
-                    <div
-                      className="digital"
-                      style={{
-                        fontSize: 18,
-                        color: isRunning ? "#ff496b" : "#8da3be",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {isRunning ? "RACE IN PROGRESS" : active?.status === "finished" ? "RUN FINISHED" : "TRACK READY"}
-                    </div>
-                  </div>
-                </div>
               </section>
 
-              {/* Main Arena Grid: Broadcast & Live Telemetry wrapped in Mechanical Blast Doors */}
-              <MechanicalBlastDoors>
-                <section className="two-col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.7fr) minmax(320px, 0.9fr)", gap: 18 }}>
-                {/* Live Broadcast Card */}
-                <div className="panel hud-panel" style={{ overflow: "hidden" }}>
-                  <div
-                    style={{
-                      padding: "14px 20px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderBottom: "1px solid rgba(45, 75, 110, 0.3)",
-                      background: "rgba(10, 18, 28, 0.5)",
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, display: "flex", gap: 10, alignItems: "center", fontSize: 14 }}>
-                      <Radio size={16} color="#00f0ff" />
-                      <span>LIVE TRACK BROADCAST // WEBRTC</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div className="eq-bars">
-                        <span className="eq-bar" />
-                        <span className="eq-bar" />
-                        <span className="eq-bar" />
-                        <span className="eq-bar" />
-                      </div>
-                      <span className="pill pill-green">WEBRTC LIVE</span>
-                    </div>
-                  </div>
-
-                  {/* Real-time WebRTC LiveKit Spectator Player */}
-                  <LiveKitSpectatorPlayer />
-
-                  {/* Active Race HUD Bar */}
-                  <div
-                    style={{
-                      padding: "16px 22px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 16,
-                      flexWrap: "wrap",
-                      background: isRunning
-                        ? "linear-gradient(90deg, rgba(0, 240, 255, 0.08), rgba(11, 20, 32, 0.8))"
-                        : "rgba(9, 16, 26, 0.7)",
-                      borderTop: "1px solid rgba(45, 75, 110, 0.3)",
-                    }}
-                  >
+              {/* Official Leaderboard Summary Table */}
+              <section className="bg-[#FFFFFF] border-[3px] border-[#292929] rounded shadow-[6px_6px_0px_#292929] overflow-hidden">
+                <div className="bg-[#292929] text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Trophy size={20} className="text-[#FF8A32]" />
                     <div>
-                      <div
-                        className="mono"
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: "0.15em",
-                          color: isRunning ? "#00f0ff" : "#8da3be",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                        }}
-                      >
-                        {isRunning ? (
-                          <>
-                            <span className="live-beacon live-dot-green" /> ACTIVE ON TRACK
-                          </>
-                        ) : active?.status === "finished" ? (
-                          <>
-                            <CheckCircle2 size={12} color="#00ff88" /> LAST COMPLETED RUN
-                          </>
-                        ) : (
-                          "TELEMETRY STANDBY"
-                        )}
-                      </div>
-                      <div style={{ fontSize: 19, fontWeight: 700, marginTop: 2, color: "#fff" }}>
-                        {currentTeam?.name ?? "Track Idle"}
-                      </div>
-                      <div className="muted mono" style={{ fontSize: 12, marginTop: 1 }}>
-                        {currentTeam?.code ? `${currentTeam.code} · ${currentTeam.college}` : "Waiting for organizer to dispatch robot"}
-                      </div>
-                    </div>
-
-                    <div style={{ textAlign: "right" }}>
-                      <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.15em" }}>
-                        OFFICIAL STOPWATCH
-                      </div>
-                      <div
-                        className={`stopwatch-display ${active?.status === "finished" ? "finished" : ""}`}
-                        style={{ marginTop: 2 }}
-                      >
-                        {active
-                          ? active.status === "finished" && active.elapsed_ms != null
-                            ? (active.elapsed_ms / 1000).toFixed(2) + "s"
-                            : elapsed.toFixed(2) + "s"
-                          : "--.--s"}
+                      <h2 className="font-mono text-sm sm:text-base font-black uppercase tracking-wider">
+                        OFFICIAL COMPETITION LEADERBOARD // NIRMAN 6.0
+                      </h2>
+                      <div className="font-mono text-[10px] text-[#A3A3A3]">
+                        RANKINGS DERIVED FROM REAL SUPABASE TIMING & BEAM BREAKS
                       </div>
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => handleSelectTab("leaderboard")}
+                    className="font-mono text-xs font-black px-3 py-1.5 bg-[#FF8A32] text-[#292929] border border-black shadow-[1.5px_1.5px_0_#000] rounded hover:bg-[#ff9c4e] self-start sm:self-auto cursor-pointer"
+                  >
+                    FULL TIMING SHEET →
+                  </button>
                 </div>
 
-                {/* 4-Gate Laser Telemetry Card */}
-                <div className="panel hud-panel" style={{ padding: 22 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 9, fontWeight: 700, fontSize: 15 }}>
-                      <Antenna size={18} color="#00f0ff" />
-                      <span>LASER TELEMETRY</span>
-                    </div>
-                    <span className="pill pill-green">ESP32 DevKit</span>
-                  </div>
-                  <p className="muted" style={{ fontSize: 12 }}>
-                    4 Optical Gates · Server-Timestamp Validation
-                  </p>
-
-                  {/* 4 Gates Visualizer */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginTop: 20 }}>
-                    {[1, 2, 3, 4].map((n) => {
-                      const cleared = checks.includes(n);
-                      const label = gateLabels[n];
-                      return (
-                        <TiltCard key={n} maxTilt={6} className="gate-tilt-wrap">
-                          <div className={`gate-card ${cleared ? "cleared" : "pending"}`}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                              <div>
-                                <div className="mono" style={{ fontSize: 11, fontWeight: 700, color: cleared ? "#00ff88" : "#8da3be" }}>
-                                  {label.name}
-                                </div>
-                                <div className="muted" style={{ fontSize: 10, marginTop: 2 }}>
-                                  {label.desc}
-                                </div>
-                              </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left font-mono text-xs min-w-[650px]">
+                    <thead>
+                      <tr className="bg-[#FFF9F3] border-b-2 border-[#292929] text-[#292929] font-black text-[11px] uppercase tracking-wider">
+                        <th className="py-3.5 px-4">POS</th>
+                        <th className="py-3.5 px-4">CODE</th>
+                        <th className="py-3.5 px-4">ROBOT & INSTITUTION</th>
+                        <th className="py-3.5 px-4">STATUS</th>
+                        <th className="py-3.5 px-4 text-right">BEST LAP</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y-2 divide-[#E8E8E8]">
+                      {sorted.slice(0, 6).map((t, idx) => {
+                        const isP1 = idx === 0 && t.best_time_ms != null;
+                        const isPodium = idx < 3 && t.best_time_ms != null;
+                        return (
+                          <tr
+                            key={t.id}
+                            className={`transition-colors ${
+                              isP1
+                                ? "bg-[#FFB36B]/25 font-bold"
+                                : idx % 2 === 1
+                                ? "bg-[#FFF9F3]"
+                                : "bg-[#FFFFFF]"
+                            } hover:bg-[#F5D9C0]/50`}
+                          >
+                            <td className="py-3.5 px-4">
                               <span
-                                style={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "50%",
-                                  background: cleared ? "#00ff88" : "#35485e",
-                                  boxShadow: cleared ? "0 0 12px #00ff88" : "none",
-                                }}
-                              />
-                            </div>
-
-                            {/* Animated Laser Beam */}
-                            <div className={`laser-beam ${cleared ? "active" : "standby"}`} />
-
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
-                              <span
-                                className="mono"
-                                style={{
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                  color: cleared ? "#00ff88" : "#5d738c",
-                                }}
+                                className={`inline-block font-mono font-black text-xs px-2.5 py-0.5 rounded border border-[#292929] ${
+                                  isP1
+                                    ? "bg-[#FF8A32] text-[#292929] shadow-[2px_2px_0px_#292929]"
+                                    : isPodium
+                                    ? "bg-[#F5D9C0] text-[#292929] shadow-[1px_1px_0px_#292929]"
+                                    : "bg-[#E8E8E8] text-[#292929]"
+                                }`}
                               >
-                                {cleared ? "CLEARED" : "PENDING"}
+                                #{idx + 1}
                               </span>
-                              {cleared && (
-                                <span className="mono" style={{ fontSize: 10, color: "#a5f3d4" }}>
-                                  PASSED
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </TiltCard>
-                      );
-                    })}
-                  </div>
-
-                  {/* Checkpoint Progress Meter */}
-                  <div
-                    style={{
-                      marginTop: 22,
-                      padding: 16,
-                      borderRadius: 14,
-                      background: "rgba(5, 12, 20, 0.7)",
-                      border: "1px solid rgba(45, 75, 110, 0.4)",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span className="mono muted" style={{ fontSize: 11, letterSpacing: "0.1em" }}>
-                        COURSE PROGRESS
-                      </span>
-                      <span className="digital" style={{ fontSize: 14, color: "#00f0ff", fontWeight: 700 }}>
-                        {Math.round((cpCount / 4) * 100)}%
-                      </span>
-                    </div>
-
-                    <div
-                      style={{
-                        height: 8,
-                        background: "rgba(25, 40, 60, 0.6)",
-                        borderRadius: 10,
-                        marginTop: 10,
-                        overflow: "hidden",
-                        border: "1px solid rgba(0, 240, 255, 0.2)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${(cpCount / 4) * 100}%`,
-                          background: "linear-gradient(90deg, #00f0ff, #00ff88)",
-                          boxShadow: "0 0 16px rgba(0, 240, 255, 0.8)",
-                          transition: "width 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                        }}
-                      />
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 11 }}>
-                      <span className="mono" style={{ color: "#8da3be" }}>
-                        {cpCount} of 4 Gates Triggered
-                      </span>
-                      <span className="mono" style={{ color: cpCount === 4 ? "#00ff88" : "#ffaa00" }}>
-                        {cpCount === 4 ? "LAP COMPLETED" : "IN TRANSIT"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </MechanicalBlastDoors>
-
-              {/* Second Row: Leaderboard & Checkpoint Log */}
-              <section className="two-col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(300px, 0.7fr)", gap: 18, marginTop: 20 }}>
-                {/* Leaderboard Panel */}
-                <div className="panel hud-panel" style={{ padding: 22 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <div>
-                      <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.18em" }}>
-                        COMPETITION STANDINGS
-                      </div>
-                      <h2 style={{ fontSize: 22, margin: "4px 0 0", fontWeight: 700, display: "flex", alignItems: "center", gap: 10 }}>
-                        <Trophy size={20} color="#ffbe28" /> Official Leaderboard
-                      </h2>
-                    </div>
-                    <span className="pill">FASTEST LAP</span>
-                  </div>
-
-                  {/* Table Header */}
-                  <div
-                    className="mono"
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "46px minmax(130px, 1fr) 110px 90px",
-                      gap: 12,
-                      padding: "8px 14px",
-                      fontSize: 10,
-                      color: "#6b829c",
-                      letterSpacing: "0.1em",
-                      borderBottom: "1px solid rgba(45, 75, 110, 0.3)",
-                    }}
-                  >
-                    <span>POS</span>
-                    <span>TEAM / COLLEGE</span>
-                    <span>BEST LAP</span>
-                    <span>STATUS</span>
-                  </div>
-
-                  {/* Leaderboard Rows */}
-                  <div style={{ marginTop: 6, display: "grid", gap: 4 }}>
-                    {sorted.map((t, i) => {
-                      const podiumClass = i === 0 ? "podium-1" : i === 1 ? "podium-2" : i === 2 ? "podium-3" : "";
-                      const rankColor = i === 0 ? "#ffbe28" : i === 1 ? "#c8dcf0" : i === 2 ? "#dc8250" : "#6c84a0";
-                      const isFinished = t.status === "finished";
-                      const isRunningTeam = active?.team_id === t.id && isRunning;
-
-                      return (
-                        <div key={t.id} className={`leaderboard-row ${podiumClass}`}>
-                          <strong className="digital" style={{ fontSize: 16, color: rankColor }}>
-                            #{i + 1}
-                          </strong>
-                          <div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{t.name}</div>
-                            <div className="muted mono" style={{ fontSize: 11, marginTop: 1 }}>
-                              {t.code} · {t.college}
-                            </div>
-                          </div>
-                          <strong className="digital" style={{ fontSize: 15, color: "#00f0ff" }}>
-                            {t.best_time_ms ? (
-                              <CyberScrambleText text={fmt(t.best_time_ms)} duration={350} />
-                            ) : (
-                              "—"
-                            )}
-                          </strong>
-                          <div>
-                            <span
-                              className="mono"
-                              style={{
-                                fontSize: 10,
-                                padding: "3px 8px",
-                                borderRadius: 6,
-                                background: isRunningTeam
-                                  ? "rgba(255, 170, 0, 0.15)"
-                                  : isFinished
-                                  ? "rgba(0, 255, 136, 0.12)"
-                                  : "rgba(45, 75, 110, 0.2)",
-                                color: isRunningTeam ? "#ffaa00" : isFinished ? "#00ff88" : "#8da3be",
-                                border: `1px solid ${
-                                  isRunningTeam
-                                    ? "rgba(255, 170, 0, 0.3)"
-                                    : isFinished
-                                    ? "rgba(0, 255, 136, 0.3)"
-                                    : "rgba(45, 75, 110, 0.2)"
-                                }`,
-                                display: "inline-block",
-                              }}
-                            >
-                              {isRunningTeam ? "RACING" : t.status.toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Live Gate Event Feed */}
-                <div className="panel hud-panel" style={{ padding: 22 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <div>
-                      <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.18em" }}>
-                        SENSOR LOGS
-                      </div>
-                      <h2 style={{ fontSize: 22, margin: "4px 0 0", fontWeight: 700, display: "flex", alignItems: "center", gap: 10 }}>
-                        <Clock size={20} color="#00f0ff" /> Checkpoint Stream
-                      </h2>
-                    </div>
-                    <span className="pill pill-green">REALTIME</span>
-                  </div>
-
-                  <div data-lenis-prevent style={{ display: "grid", gap: 8, maxHeight: 310, overflowY: "auto", paddingRight: 4 }}>
-                    {events.length > 0 ? (
-                      events.map((e) => (
-                        <div
-                          key={e.id}
-                          style={{
-                            padding: "12px 14px",
-                            borderRadius: 10,
-                            background: "rgba(8, 16, 26, 0.7)",
-                            border: "1px solid rgba(45, 75, 110, 0.35)",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            fontSize: 12,
-                          }}
-                        >
-                          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                            <span
-                              style={{
-                                width: 7,
-                                height: 7,
-                                borderRadius: "50%",
-                                background: "#00ff88",
-                                boxShadow: "0 0 8px #00ff88",
-                              }}
-                            />
-                            <div>
-                              <strong style={{ color: "#f0f6ff" }}>Checkpoint 0{e.checkpoint_no} Cleared</strong>
-                              <div className="muted mono" style={{ fontSize: 10 }}>
-                                Beam interrupted & validated
-                              </div>
-                            </div>
-                          </div>
-                          <span className="mono" style={{ color: "#00f0ff", fontSize: 11 }}>
-                            {new Date(e.detected_at).toLocaleTimeString()}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "40px 16px",
-                          color: "#6c84a0",
-                          fontFamily: "var(--font-mono)",
-                          fontSize: 12,
-                        }}
-                      >
-                        <Antenna size={28} color="#3c526b" style={{ margin: "0 auto 10px" }} />
-                        Waiting for laser checkpoint interrupts...
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Sync Heartbeat Footer */}
-                  <div
-                    style={{
-                      borderTop: "1px solid rgba(45, 75, 110, 0.3)",
-                      marginTop: 18,
-                      paddingTop: 14,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: 11,
-                      fontFamily: "var(--font-mono)",
-                      color: connected ? "#00ff88" : "#8da3be",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span className={`live-beacon ${connected ? "live-dot-green" : ""}`} />
-                      <span>{connected ? "PostgreSQL Realtime Channel Active" : "Connecting to Database..."}</span>
-                    </div>
-                    <span style={{ opacity: 0.6 }}>PORT: 443</span>
-                  </div>
+                            </td>
+                            <td className="py-3.5 px-4 font-black text-[#FF8A32] text-sm">
+                              {t.code}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <div className="font-black text-[#292929] text-sm">{t.name}</div>
+                              <div className="text-[11px] text-[#A3A3A3]">{t.college}</div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span
+                                className={`text-[10px] font-black px-2 py-0.5 rounded border border-[#292929] uppercase ${
+                                  t.status === "running"
+                                    ? "bg-[#FF8A32] text-[#292929] animate-pulse"
+                                    : "bg-[#FFFFFF] text-[#292929]"
+                                }`}
+                              >
+                                {t.status}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-right font-black text-base text-[#292929]">
+                              {fmt(t.best_time_ms)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </section>
 
               {/* NIRMAN-inspired Marquee Divider */}
-              <div className="marquee-shell" aria-hidden="true">
-                <div className="marquee-track">
-                  <span>NIRMAN 6.0 // LINE FOLLOWER ARENA</span>
-                  <span>•</span>
-                  <span>TRANSFORM WITH TECHNOLOGY</span>
+              <div className="marquee-shell py-2 font-mono text-xs uppercase tracking-wider" aria-hidden="true">
+                <div className="flex gap-4 items-center whitespace-nowrap overflow-hidden font-black">
+                  <span>NIRMAN 6.0 // AUTONOMOUS LINE FOLLOWER ARENA</span>
                   <span>•</span>
                   <span>4-GATE ESP32 LASER TIMING</span>
                   <span>•</span>
                   <span>SILICON UNIVERSITY // 20.3533° N, 85.8266° E</span>
                   <span>•</span>
-                  <span>NIRMAN 6.0 // LINE FOLLOWER ARENA</span>
-                  <span>•</span>
                   <span>TRANSFORM WITH TECHNOLOGY</span>
                   <span>•</span>
+                  <span>NIRMAN 6.0 // AUTONOMOUS LINE FOLLOWER ARENA</span>
+                  <span>•</span>
                   <span>4-GATE ESP32 LASER TIMING</span>
-                  <span>•</span>
-                  <span>SILICON UNIVERSITY // 20.3533° N, 85.8266° E</span>
-                  <span>•</span>
                 </div>
               </div>
 
-              {/* Arena Intel, Rulebook Modal & Race-Day FAQs */}
-              <NirmanRulebookFaq />
-
-              {/* Techfest-Style Interactive Bot Subsystem Inspector */}
+              {/* Interactive Bot Inspector & Rulebook */}
               <InteractiveBotInspector />
+              <NirmanRulebookFaq />
+              <SponsorWall />
 
               {/* Footer */}
-              <footer
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 12,
-                  flexWrap: "wrap",
-                  marginTop: 32,
-                  paddingTop: 20,
-                  borderTop: "1px solid rgba(45, 75, 110, 0.2)",
-                  color: "#8da3be",
-                  fontSize: 11,
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
-                <span>TRACK VISION // NIRMAN 6.0 LINE FOLLOWER ARENA</span>
-                <span>Hardware: ESP32 ADC1 (CH1-CH4) · Timing: Server Timestamps</span>
+              <footer className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-6 shadow-[5px_5px_0px_#292929] flex flex-col sm:flex-row justify-between items-center gap-3 font-mono text-xs">
+                <div>
+                  <span className="font-black text-[#292929]">TRACK VISION // NIRMAN 6.0 GRAND PRIX</span>
+                  <div className="text-[10px] text-[#A3A3A3] mt-0.5">
+                    Hardware: ESP32 ADC1 (CH1-CH4) · Timing: Server Timestamps
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 bg-[#F5D9C0] border border-[#292929] rounded font-bold">
+                    PRO CIRCUIT EDITION
+                  </span>
+                </div>
               </footer>
-            </>
+            </motion.div>
           )}
-        </motion.div>
-      </AnimatePresence>
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 02: LIVE ARENA (SPECTATOR HUB & WEBRTC BROADCAST)
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "live" && (
+            <motion.div
+              key="live"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="space-y-6"
+            >
+              {/* Arena Header */}
+              <div className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-5 shadow-[4px_4px_0px_#292929] flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#FF8A32] border-2 border-[#292929] rounded flex items-center justify-center font-mono font-black text-xl text-[#292929] shadow-[2px_2px_0px_#292929]">
+                    <Radio size={20} />
+                  </div>
+                  <div>
+                    <h2 className="font-digital text-xl font-black text-[#292929]">
+                      LIVE ARENA // <span className="text-[#FF8A32]">TELEMETRY BROADCAST</span>
+                    </h2>
+                    <div className="font-mono text-xs text-[#A3A3A3] font-bold">
+                      NIRMAN 6.0 AUTONOMOUS COMPETITION CIRCUIT
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-black px-3 py-1 bg-[#F5D9C0] border-2 border-[#292929] rounded shadow-[2px_2px_0px_#292929]">
+                    WEBRTC FEED ONLINE
+                  </span>
+                  <Link href="/admin">
+                    <button className="font-mono text-xs font-black px-4 py-2 bg-[#292929] text-white border-2 border-[#292929] rounded shadow-[2.5px_2.5px_0px_#FF8A32]">
+                      DISPATCH COCKPIT →
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Quick KPI Chips */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-4 shadow-[4px_4px_0px_#292929]">
+                  <div className="font-mono text-[10px] text-[#A3A3A3] font-bold uppercase">TRACK RECORD</div>
+                  <div className="font-digital text-2xl font-black text-[#292929] mt-0.5">
+                    {fastestLap?.best_time_ms ? fmt(fastestLap.best_time_ms) : "--.--s"}
+                  </div>
+                </div>
+
+                <div className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-4 shadow-[4px_4px_0px_#292929]">
+                  <div className="font-mono text-[10px] text-[#A3A3A3] font-bold uppercase">ESP32 SENSORS</div>
+                  <div className="font-digital text-2xl font-black text-[#FF8A32] mt-0.5">
+                    4 CHANNELS ACTIVE
+                  </div>
+                </div>
+
+                <div className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-4 shadow-[4px_4px_0px_#292929]">
+                  <div className="font-mono text-[10px] text-[#A3A3A3] font-bold uppercase">REGISTERED TEAMS</div>
+                  <div className="font-digital text-2xl font-black text-[#292929] mt-0.5">
+                    {teams.length} COMPETITORS
+                  </div>
+                </div>
+
+                <div className="bg-[#FFFFFF] border-[2.5px] border-[#292929] rounded p-4 shadow-[4px_4px_0px_#292929]">
+                  <div className="font-mono text-[10px] text-[#A3A3A3] font-bold uppercase">ARENA STATUS</div>
+                  <div className="font-digital text-2xl font-black text-[#FF8A32] mt-0.5">
+                    {isRunning ? "RACE IN PROGRESS" : "TRACK READY"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Arena Grid: LiveKit Spectator Video & Active Telemetry */}
+              <MechanicalBlastDoors>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left: WebRTC Spectator Player (8 cols) */}
+                  <div className="lg:col-span-8 bg-[#FFFFFF] border-[3px] border-[#292929] rounded shadow-[5px_5px_0px_#292929] overflow-hidden">
+                    <div className="bg-[#292929] text-white p-3 px-4 flex justify-between items-center font-mono text-xs font-bold">
+                      <span className="flex items-center gap-2">
+                        <Radio size={14} className="text-[#FF8A32]" />
+                        LIVE TRACK BROADCAST // WEBRTC
+                      </span>
+                      <span className="bg-[#FF8A32] text-[#292929] px-2 py-0.5 rounded font-black">
+                        1080p 60FPS
+                      </span>
+                    </div>
+
+                    <LiveKitSpectatorPlayer />
+
+                    {/* Active Heat Banner */}
+                    <div className="p-4 bg-[#FFF9F3] border-t-2 border-[#292929] flex justify-between items-center font-mono text-xs">
+                      <div>
+                        <span className="text-[#A3A3A3] font-bold">ACTIVE RUN: </span>
+                        <span className="font-black text-[#292929] text-sm">
+                          {currentTeam?.name ?? "No Active Heat"} ({currentTeam?.code ?? "STANDBY"})
+                        </span>
+                      </div>
+                      <div className="font-digital text-xl font-black text-[#FF8A32]">
+                        {elapsed.toFixed(2)}s
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Optical Gates Progress Box (4 cols) */}
+                  <div className="lg:col-span-4 bg-[#FFFFFF] border-[3px] border-[#292929] rounded p-5 shadow-[5px_5px_0px_#292929] space-y-4">
+                    <div className="font-mono text-xs font-black uppercase tracking-wider text-[#292929] pb-2 border-b-2 border-[#292929] flex items-center justify-between">
+                      <span>CIRCUIT SECTORS</span>
+                      <span className="text-[#FF8A32]">{cpCount}/4 GATES</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {[1, 2, 3, 4].map((g) => {
+                        const isCleared = checks.includes(g);
+                        const label = gateLabels[g];
+                        return (
+                          <div
+                            key={g}
+                            className={`p-3 rounded border-2 border-[#292929] font-mono text-xs flex justify-between items-center ${
+                              isCleared
+                                ? "bg-[#FFB36B]/30 shadow-[2px_2px_0px_#292929]"
+                                : "bg-[#FFF9F3] text-[#A3A3A3]"
+                            }`}
+                          >
+                            <span className="font-black text-[#292929]">{label.name}</span>
+                            <span
+                              className={`text-[10px] font-black px-2 py-0.5 rounded border border-[#292929] ${
+                                isCleared ? "bg-[#FF8A32] text-[#292929]" : "bg-[#E8E8E8] text-[#A3A3A3]"
+                              }`}
+                            >
+                              {isCleared ? "CLEARED" : "WAITING"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </MechanicalBlastDoors>
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 03: OVERVIEW
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "overview" && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccOverview
+                teams={teams}
+                active={active}
+                events={events}
+                connected={connected}
+                onGoToLive={handleScrollToLive}
+              />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 04: TEAMS DIRECTORY
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "teams" && (
+            <motion.div
+              key="teams"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccTeamsDirectory teams={teams} activeTeamId={active?.team_id} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 05: LEADERBOARD TABLE
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "leaderboard" && (
+            <motion.div
+              key="leaderboard"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccLeaderboardTable teams={teams} activeTeamId={active?.team_id} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 06: REPLAY CENTER
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "replay" && (
+            <motion.div
+              key="replay"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccReplayCenter videoId={videoId} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 07: HARDWARE MONITOR
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "hardware" && (
+            <motion.div
+              key="hardware"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccHardwareMonitor connected={connected} eventCount={events.length} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 08: REPORTS
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "reports" && (
+            <motion.div
+              key="reports"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccReports teams={teams} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 09: EVENT LOG
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "eventlog" && (
+            <motion.div
+              key="eventlog"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccEventLog
+                teams={teams}
+                active={active}
+                events={events}
+                connected={connected}
+              />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 10: TRACK MAP
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "map" && (
+            <motion.div
+              key="map"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccTrackMap active={active} events={events} connected={connected} />
+            </motion.div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              TAB 11: AI ANALYST
+              ══════════════════════════════════════════════════════════════ */}
+          {activeTab === "ai" && (
+            <motion.div
+              key="ai"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <GccAiAnalyst teams={teams} active={active} events={events} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      <FloatingArenaMenu activeTab={activeTab} onSelectTab={handleSelectTab} />
+      <MissionControlHudBar
+        checksCount={checks.length}
+        totalGates={4}
+        activeRunTeam={active?.teams?.name ?? null}
+        isRunning={active?.status === "running"}
+      />
     </div>
-  )}
-  <FloatingArenaMenu activeTab={activeTab} onSelectTab={handleSelectTab} />
-  <MissionControlHudBar
-    checksCount={checks.length}
-    totalGates={4}
-    activeRunTeam={active?.teams?.name ?? null}
-    isRunning={active?.status === "running"}
-  />
-</div>
-);
+  );
 }

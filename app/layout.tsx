@@ -4,6 +4,10 @@ import Preloader from "@/components/Preloader";
 import TechkritiCursor from "@/components/TechkritiCursor";
 import CyberParticlesCanvas from "@/components/CyberParticlesCanvas";
 import "./globals.css";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "Track Vision | NIRMAN 6.0 — Line Follower Robotics Competition",
@@ -45,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", geist.variable)}>
       <body>
         <TechkritiCursor />
         <CyberParticlesCanvas />

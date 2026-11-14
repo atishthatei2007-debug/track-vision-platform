@@ -42,16 +42,15 @@ export default function GccStatusBar({
         alignItems: "center",
         gap: 6,
         padding: "7px 20px",
-        background: "rgba(4, 8, 14, 0.92)",
-        borderBottom: "1px solid rgba(45, 75, 110, 0.4)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        background: "#FFFFFF",
+        borderBottom: "2.5px solid #292929",
         overflowX: "auto",
         flexWrap: "nowrap",
         position: "sticky",
         top: 0,
         zIndex: 20,
         marginBottom: 8,
+        color: "#292929",
       }}
     >
       {/* Brand chip */}
@@ -61,15 +60,15 @@ export default function GccStatusBar({
           alignItems: "center",
           gap: 7,
           paddingRight: 12,
-          borderRight: "1px solid rgba(45,75,110,0.4)",
+          borderRight: "2px solid #292929",
           marginRight: 4,
           flexShrink: 0,
         }}
       >
-        <Zap size={12} color="#ff6a00" />
+        <Zap size={12} color="#FF8A32" />
         <span
           className="digital"
-          style={{ fontSize: 10, color: "#ff6a00", letterSpacing: "0.14em", whiteSpace: "nowrap" }}
+          style={{ fontSize: 10, color: "#FF8A32", letterSpacing: "0.14em", whiteSpace: "nowrap", fontWeight: 800 }}
         >
           GCC SYSTEM
         </span>
@@ -77,18 +76,18 @@ export default function GccStatusBar({
 
       {/* Supabase WS status */}
       <StatusPill
-        icon={<Wifi size={11} color={connected ? "#00ff88" : "#ff496b"} />}
+        icon={<Wifi size={11} color={connected ? "#22c55e" : "#ef4444"} />}
         label={connected ? "REALTIME OK" : "WS OFFLINE"}
-        color={connected ? "#00ff88" : "#ff496b"}
+        color={connected ? "#22c55e" : "#ef4444"}
       />
 
       <Divider />
 
       {/* Arena state */}
       <StatusPill
-        icon={<Activity size={11} color={isRunning ? "#00f0ff" : "#8da3be"} />}
+        icon={<Activity size={11} color={isRunning ? "#FF8A32" : "#A3A3A3"} />}
         label={isRunning ? (activeTeamName ? `ON TRACK: ${activeTeamName}` : "RACE ACTIVE") : "TRACK IDLE"}
-        color={isRunning ? "#00f0ff" : "#8da3be"}
+        color={isRunning ? "#FF8A32" : "#A3A3A3"}
         pulse={isRunning}
       />
 
@@ -96,27 +95,27 @@ export default function GccStatusBar({
 
       {/* Checkpoint events */}
       <StatusPill
-        icon={<CheckCircle2 size={11} color="#ffaa00" />}
+        icon={<CheckCircle2 size={11} color="#FF8A32" />}
         label={`${eventCount} INTERRUPTS`}
-        color="#ffaa00"
+        color="#FF8A32"
       />
 
       <Divider />
 
       {/* Teams progress */}
       <StatusPill
-        icon={<Timer size={11} color="#00f0ff" />}
+        icon={<Timer size={11} color="#292929" />}
         label={`${finishedCount}/${teamsCount} RUNS DONE`}
-        color="#00f0ff"
+        color="#292929"
       />
 
       <Divider />
 
       {/* ESP32 */}
       <StatusPill
-        icon={<Cpu size={11} color="#8da3be" />}
+        icon={<Cpu size={11} color="#A3A3A3" />}
         label="ESP32 · 4 GATES ARMED"
-        color="#8da3be"
+        color="#A3A3A3"
       />
 
       {/* Spacer */}
@@ -127,10 +126,11 @@ export default function GccStatusBar({
         className="digital"
         style={{
           fontSize: 11,
-          color: "#8da3be",
+          color: "#292929",
           letterSpacing: "0.1em",
           whiteSpace: "nowrap",
           flexShrink: 0,
+          fontWeight: 700,
         }}
       >
         {now.toLocaleTimeString()}
@@ -157,9 +157,10 @@ function StatusPill({
         alignItems: "center",
         gap: 5,
         padding: "3px 9px",
-        borderRadius: 20,
-        background: `${color}10`,
-        border: `1px solid ${color}30`,
+        borderRadius: 4,
+        background: "#FFF9F3",
+        border: "1.5px solid #292929",
+        boxShadow: "1.5px 1.5px 0px #292929",
         flexShrink: 0,
         position: "relative",
       }}
@@ -175,7 +176,7 @@ function StatusPill({
             height: 6,
             borderRadius: "50%",
             background: color,
-            boxShadow: `0 0 8px ${color}`,
+            boxShadow: `0 0 6px ${color}`,
             animation: "statusPulse 1.6s ease-in-out infinite",
           }}
         />
@@ -185,9 +186,9 @@ function StatusPill({
         className="mono"
         style={{
           fontSize: 9,
-          color: color,
+          color: "#292929",
           letterSpacing: "0.08em",
-          fontWeight: 600,
+          fontWeight: 700,
           whiteSpace: "nowrap",
           paddingLeft: pulse ? 12 : 0,
         }}

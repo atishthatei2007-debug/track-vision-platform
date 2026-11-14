@@ -6,57 +6,55 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  color-scheme: dark;
-  --bg-dark: #04080e;
-  --bg-card: rgba(11, 18, 30, 0.75);
-  --bg-card-hover: rgba(16, 26, 44, 0.85);
-  --border-subtle: rgba(45, 75, 110, 0.35);
-  --border-glow: rgba(0, 240, 255, 0.4);
-  --cyan: #00f0ff;
-  --cyan-glow: rgba(0, 240, 255, 0.35);
-  --amber: #ffaa00;
-  --amber-glow: rgba(255, 170, 0, 0.35);
-  --orange: #ff5500;
-  --orange-glow: rgba(255, 85, 0, 0.4);
-  --green: #00ff88;
-  --green-glow: rgba(0, 255, 136, 0.35);
-  --crimson: #ff2a55;
-  --muted: oklch(0.97 0 0);
-  --text-main: #f0f6ff;
+  color-scheme: light;
+  --bg-dark: #FFF9F3;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFF9F3;
+  --border-subtle: #E8E8E8;
+  --border-glow: rgba(255, 138, 50, 0.4);
+  --cyan: #FF8A32;
+  --cyan-glow: rgba(255, 138, 50, 0.35);
+  --amber: #FFB36B;
+  --amber-glow: rgba(255, 179, 107, 0.35);
+  --orange: #FF8A32;
+  --orange-glow: rgba(255, 138, 50, 0.4);
+  --green: #22c55e;
+  --green-glow: rgba(34, 197, 94, 0.35);
+  --crimson: #ef4444;
+  --muted: #A3A3A3;
+  --text-main: #292929;
   --font-main: 'Space Grotesk', -apple-system, sans-serif;
   --font-mono: 'DM Mono', monospace;
   --font-digital: 'Orbitron', monospace;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* GCC Grand Prix Arcade Palette Tokens */
+  --gcc-bg: #FFF9F3;
+  --gcc-card: #FFFFFF;
+  --gcc-orange: #FF8A32;
+  --gcc-light-orange: #FFB36B;
+  --gcc-peach: #F5D9C0;
+  --gcc-light-grey: #E8E8E8;
+  --gcc-medium-grey: #A3A3A3;
+  --gcc-charcoal: #292929;
+
+  --background: #FFF9F3;
+  --foreground: #292929;
+  --card: #FFFFFF;
+  --card-foreground: #292929;
+  --popover: #FFFFFF;
+  --popover-foreground: #292929;
+  --primary: #FF8A32;
+  --primary-foreground: #292929;
+  --secondary: #F5D9C0;
+  --secondary-foreground: #292929;
+  --muted-foreground: #A3A3A3;
+  --accent: #FFB36B;
+  --accent-foreground: #292929;
+  --destructive: #ef4444;
+  --border: #292929;
+  --input: #292929;
+  --ring: #FF8A32;
+  --radius: 0.375rem;
 }
 
 * {
@@ -66,29 +64,12 @@
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-main);
+  background-color: #FFF9F3;
+  color: #292929;
   font-family: var(--font-main);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 50% -10%, rgba(0, 180, 255, 0.12) 0%, transparent 60%),
-    radial-gradient(circle at 10% 40%, rgba(255, 106, 0, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 90% 70%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 0 0, 0 0;
-}
-
-/* Futuristic Ambient Grid Overlay */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(4, 8, 14, 0.8) 100%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* Typography Helpers */
@@ -105,96 +86,83 @@ body::before {
   color: var(--muted);
 }
 
-/* Glassmorphism Panel Base */
+/* NeoBrutalism Panel Base (Solid Hard Shadow & Crisp Charcoal Border) */
 .panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  background: #FFFFFF;
+  border: 2.5px solid #292929;
+  border-radius: 6px;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 4px 4px 0px #292929;
 }
 
 .panel:hover {
-  border-color: rgba(60, 105, 155, 0.5);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: #292929;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px #292929;
 }
 
-/* Corner HUD Brackets */
+/* Corner NeoBrutalism Registration Brackets */
 .hud-panel {
   position: relative;
 }
 
-.hud-panel::before,
-.hud-panel::after {
+.hud-panel::before {
   content: "";
   position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 2px solid transparent;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-top: 3px solid #ff5500;
+  border-left: 3px solid #ff5500;
   pointer-events: none;
-  transition: all 0.3s ease;
   z-index: 2;
 }
 
-.hud-panel::before {
-  top: 8px;
-  left: 8px;
-  border-top-color: rgba(0, 240, 255, 0.4);
-  border-left-color: rgba(0, 240, 255, 0.4);
-}
-
 .hud-panel::after {
-  bottom: 8px;
-  right: 8px;
-  border-bottom-color: rgba(0, 240, 255, 0.4);
-  border-right-color: rgba(0, 240, 255, 0.4);
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-bottom: 3px solid #00f0ff;
+  border-right: 3px solid #00f0ff;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.hud-panel:hover::before {
-  border-top-color: var(--cyan);
-  border-left-color: var(--cyan);
-  transform: translate(-2px, -2px);
-}
-
-.hud-panel:hover::after {
-  border-bottom-color: var(--cyan);
-  border-right-color: var(--cyan);
-  transform: translate(2px, 2px);
-}
-
-/* Badges & Pills */
+/* Badges & Pills — NeoBrutalism Geometry */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  background: rgba(0, 240, 255, 0.08);
-  color: #7cefff;
-  border-radius: 999px;
-  padding: 4px 12px;
+  border: 2px solid #000000;
+  background: #00f0ff;
+  color: #000000;
+  border-radius: 3px;
+  padding: 3px 10px;
   font-size: 11px;
   font-family: var(--font-mono);
-  letter-spacing: 0.06em;
-  font-weight: 500;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.1);
-  transition: all 0.25s ease;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  box-shadow: 2px 2px 0px #000000;
+  transition: all 0.15s ease;
 }
 
 .pill-orange {
-  border-color: rgba(255, 106, 0, 0.35);
-  background: rgba(255, 106, 0, 0.1);
-  color: #ff9d54;
-  box-shadow: 0 0 12px rgba(255, 106, 0, 0.15);
+  border-color: #000000;
+  background: #ff5500;
+  color: #000000;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 .pill-green {
-  border-color: rgba(0, 255, 136, 0.35);
-  background: rgba(0, 255, 136, 0.1);
-  color: #5effad;
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
+  border-color: #000000;
+  background: #00ff88;
+  color: #000000;
+  box-shadow: 2px 2px 0px #000000;
 }
 
 /* Pulsing Live Dot */
@@ -237,102 +205,87 @@ body::before {
   border-color: var(--green);
 }
 
-/* High-Tech Buttons */
+/* NeoBrutalist Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(50, 85, 125, 0.5);
-  border-radius: 12px;
-  padding: 10px 18px;
-  background: linear-gradient(180deg, rgba(20, 36, 58, 0.8), rgba(12, 22, 38, 0.95));
-  color: #e5f2ff;
-  font-size: 13px;
-  font-weight: 600;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 8px 16px;
+  background: #0d1522;
+  color: #f0f6ff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: 0.5s;
-}
-
-.btn:hover::before {
-  left: 100%;
 }
 
 .btn:hover {
-  border-color: var(--cyan);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-  transform: translateY(-1px);
-  color: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #000000;
+  background: #131d2e;
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #000000;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00f0ff 0%, #00a2ff 100%);
-  color: #030a14;
-  border: none;
-  font-weight: 700;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+  background: #ff5500;
+  color: #000000;
+  border-color: #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #38f4ff 0%, #1fb4ff 100%);
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
-  color: #000;
+  background: #ff6a00;
+  color: #000000;
+  box-shadow: 5px 5px 0px #000000;
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #ff2a55 0%, #c4143a 100%);
-  color: #fff;
-  border: none;
-  box-shadow: 0 0 20px rgba(255, 42, 85, 0.4);
+  background: #ff2a55;
+  color: #ffffff;
+  border-color: #000000;
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .btn-danger:hover {
-  box-shadow: 0 0 30px rgba(255, 42, 85, 0.6);
+  background: #ff496b;
+  box-shadow: 5px 5px 0px #000000;
+}
+
+/* Form Inputs — NeoBrutalism */
+.field {
+  width: 100%;
+  background: #090e17;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #ffffff;
+  box-shadow: 3px 3px 0px #000000;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.field:focus {
+  border-color: #ff5500;
+  box-shadow: 4px 4px 0px #ff5500;
 }
 
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
-}
-
-/* Fields & Inputs */
-.field {
-  width: 100%;
-  border: 1px solid rgba(45, 75, 110, 0.5);
-  border-radius: 12px;
-  padding: 12px 16px;
-  background: rgba(8, 15, 25, 0.7);
-  color: #f0f6ff;
-  font-family: inherit;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.field:focus {
-  border-color: var(--cyan);
-  background: rgba(10, 20, 35, 0.9);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
 }
 
 /* Audio / Telemetry Equalizer Bars */
@@ -360,26 +313,28 @@ body::before {
   50% { transform: scaleY(1); }
 }
 
-/* Laser Gate Card */
+/* Laser Gate Card — NeoBrutalism Arcade */
 .gate-card {
   position: relative;
   padding: 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border-subtle);
-  background: rgba(9, 16, 27, 0.7);
+  border-radius: 4px;
+  border: 2px solid #000000;
+  background: #090e17;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .gate-card.cleared {
-  border-color: rgba(0, 255, 136, 0.4);
-  background: radial-gradient(circle at 100% 0%, rgba(0, 255, 136, 0.12) 0%, rgba(9, 28, 22, 0.8) 100%);
-  box-shadow: 0 0 25px rgba(0, 255, 136, 0.15), inset 0 0 15px rgba(0, 255, 136, 0.05);
+  border-color: #000000;
+  background: #081711;
+  box-shadow: 4px 4px 0px #00ff88;
 }
 
 .gate-card.pending {
-  border-color: rgba(45, 70, 100, 0.3);
-  background: rgba(8, 14, 23, 0.5);
+  border-color: #000000;
+  background: #090e17;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 /* Laser Beam Graphic */
@@ -430,38 +385,44 @@ body::before {
   100% { transform: translateX(200%); }
 }
 
-/* Leaderboard Rows */
+/* Leaderboard Rows — NeoBrutalism */
 .leaderboard-row {
   display: grid;
   grid-template-columns: 46px minmax(130px, 1fr) 110px 90px;
   gap: 12px;
   align-items: center;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border-bottom: 1px solid rgba(35, 55, 80, 0.3);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1.5px solid #000000;
+  background: #0d121c;
+  box-shadow: 2px 2px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  margin-bottom: 4px;
 }
 
 .leaderboard-row:hover {
-  background: rgba(18, 30, 48, 0.6);
-  border-bottom-color: rgba(0, 240, 255, 0.3);
-  transform: translateX(4px);
+  background: #141c2b;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .leaderboard-row.podium-1 {
-  background: linear-gradient(90deg, rgba(255, 190, 40, 0.12), rgba(15, 25, 40, 0.4));
-  border-left: 3px solid #ffbe28;
+  background: #161a22;
+  border: 2px solid #ffaa00;
+  box-shadow: 3px 3px 0px #ffaa00;
 }
 
 .leaderboard-row.podium-2 {
-  background: linear-gradient(90deg, rgba(200, 220, 240, 0.08), rgba(15, 25, 40, 0.4));
-  border-left: 3px solid #c8dcf0;
+  background: #141a24;
+  border: 2px solid #c8dcf0;
+  box-shadow: 3px 3px 0px #c8dcf0;
 }
 
 .leaderboard-row.podium-3 {
-  background: linear-gradient(90deg, rgba(220, 130, 80, 0.08), rgba(15, 25, 40, 0.4));
-  border-left: 3px solid #dc8250;
+  background: #18151e;
+  border: 2px solid #dc8250;
+  box-shadow: 3px 3px 0px #dc8250;
 }
 
 /* Digital Stopwatch Glow */
@@ -559,45 +520,162 @@ body::before {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #0d1522;
+  border: 1.5px solid #000000;
   color: #8da3be;
   font-family: var(--font-mono);
   font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0px #000000;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
 }
 
 .gcc-tab-btn:hover {
   color: #ffffff;
-  background: rgba(255, 106, 0, 0.08);
-  border-color: rgba(255, 106, 0, 0.25);
+  background: #152033;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .gcc-tab-btn.active {
-  color: #ffffff;
-  background: linear-gradient(180deg, rgba(255, 106, 0, 0.18) 0%, rgba(255, 85, 0, 0.08) 100%);
-  border-color: rgba(255, 106, 0, 0.5);
-  box-shadow: 0 0 15px rgba(255, 106, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #000000;
+  background: #ff5500;
+  border-color: #000000;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.gcc-tab-btn.active:hover {
+  background: #ff6a00;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .gcc-card {
-  background: var(--gcc-surface);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--gcc-border);
-  border-radius: 16px;
+  background: #0b111a;
+  border: 2px solid #000000;
+  border-radius: 4px;
   position: relative;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .gcc-card:hover {
-  border-color: rgba(255, 106, 0, 0.45);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 106, 0, 0.15);
+  border-color: #000000;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+/* NeoBrutalism Utility Classes */
+.brutal-box {
+  background: #0b111a;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  border-radius: 4px;
+}
+
+.brutal-box-orange {
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #ff5500;
+}
+
+.brutal-box-cyan {
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #00f0ff;
+}
+
+.brutal-box-green {
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #00ff88;
+}
+
+.brutal-header {
+  border-bottom: 2px solid #000000;
+  padding: 10px 14px;
+  background: #0d1522;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.brutal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid #000000;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+/* ========================================================
+   GCC ARCADE MOTORSPORT TIMING BOARD & TELEMETRY STYLING
+   ======================================================== */
+.gcc-timing-board {
+  background: #FFFFFF;
+  border: 2.5px solid #292929;
+  box-shadow: 4px 4px 0px #292929;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.gcc-timing-header {
+  background: #292929;
+  border-bottom: 2px solid #292929;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #FFFFFF;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.gcc-timing-row {
+  display: grid;
+  align-items: center;
+  transition: background 0.15s ease;
+  border-bottom: 1.5px solid #E8E8E8;
+  color: #292929;
+}
+
+.gcc-timing-row:hover {
+  background: rgba(255, 138, 50, 0.08);
+}
+
+.gcc-timing-row.p1-row {
+  background: rgba(255, 179, 107, 0.25);
+  border-left: 4px solid #FF8A32;
+}
+
+.gcc-timing-row.p2-row {
+  background: rgba(245, 217, 192, 0.35);
+  border-left: 4px solid #F5D9C0;
+}
+
+.gcc-timing-row.p3-row {
+  background: rgba(232, 232, 232, 0.5);
+  border-left: 4px solid #A3A3A3;
+}
+
+.gcc-arcade-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1.5px solid #292929;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 1.5px 1.5px 0px #292929;
+  border-radius: 4px;
 }
 
 /* Print Styles for Official Race Reports */
@@ -640,9 +718,11 @@ body::before {
 
 .marquee-shell {
   overflow: hidden;
-  border-top: 1px solid rgba(0, 240, 255, 0.22);
-  border-bottom: 1px solid rgba(0, 240, 255, 0.22);
-  background: rgba(6, 13, 24, 0.72);
+  border-top: 2.5px solid #292929;
+  border-bottom: 2.5px solid #292929;
+  background: #FFB36B;
+  color: #292929;
+  font-weight: 800;
   padding: 10px 0;
   margin-top: 26px;
 }
@@ -805,4 +885,79 @@ body::after {
   html {
     @apply font-sans;
   }
+}
+
+/* ========================================================
+   GCC SMART RACE CONTROL — RETRO FUTURISTIC ARCADE TOKENS
+   ======================================================== */
+:root {
+  --gcc-carbon: #070a0f;
+  --gcc-charcoal: #0d121c;
+  --gcc-racing-orange: #ff5500;
+  --gcc-racing-orange-glow: rgba(255, 85, 0, 0.45);
+  --gcc-electric-cyan: #00f0ff;
+  --gcc-electric-cyan-glow: rgba(0, 240, 255, 0.45);
+  --gcc-arcade-green: #00ff88;
+  --gcc-arcade-green-glow: rgba(0, 255, 136, 0.45);
+  --gcc-border-brutal: 2.5px solid #000000;
+}
+
+/* NeoBrutalist Arcade Shadows & Tactile Press */
+.gcc-brutal-box {
+  background: var(--gcc-charcoal);
+  border: var(--gcc-border-brutal);
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gcc-brutal-box:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.gcc-brutal-box-orange {
+  background: #0f1622;
+  border: 2px solid var(--gcc-racing-orange);
+  box-shadow: 4px 4px 0px var(--gcc-racing-orange);
+}
+
+.gcc-brutal-box-cyan {
+  background: #091320;
+  border: 2px solid var(--gcc-electric-cyan);
+  box-shadow: 4px 4px 0px var(--gcc-electric-cyan);
+}
+
+.gcc-brutal-box-green {
+  background: #081711;
+  border: 2px solid var(--gcc-arcade-green);
+  box-shadow: 4px 4px 0px var(--gcc-arcade-green);
+}
+
+/* Arcade Corner Registration Markings */
+.gcc-corner-brackets {
+  position: relative;
+}
+
+.gcc-corner-brackets::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--gcc-racing-orange);
+  border-left: 2px solid var(--gcc-racing-orange);
+  pointer-events: none;
+}
+
+.gcc-corner-brackets::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--gcc-electric-cyan);
+  border-right: 2px solid var(--gcc-electric-cyan);
+  pointer-events: none;
 }

@@ -11,6 +11,8 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { Panel } from "@/components/ui/panel";
+import { Button } from "@/components/ui/button";
 
 type Team = {
   id: string;
@@ -53,184 +55,106 @@ export default function GccTeamsDirectory({
   }, [teams, search, filter, activeTeamId]);
 
   return (
-    <div style={{ display: "grid", gap: 20 }}>
-      {/* ── Filter & Search Control Bar ── */}
-      <div
-        className="gcc-card"
-        style={{
-          padding: "16px 20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
+    <div className="grid gap-5">
+      {/* ── Search & Filter Control Bar ── */}
+      <Panel
+        variant="default"
+        padding="default"
+        className="flex justify-between items-center flex-wrap gap-4"
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              background: "rgba(255, 106, 0, 0.15)",
-              border: "1px solid rgba(255, 106, 0, 0.4)",
-              display: "grid",
-              placeItems: "center",
-            }}
-          >
-            <Users size={16} color="#ff6a00" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded bg-[#FF8A32] border-2 border-[#292929] shadow-[2px_2px_0px_#292929] flex items-center justify-center">
+            <Users size={18} color="#292929" />
           </div>
           <div>
-            <strong style={{ fontSize: 16, letterSpacing: "0.06em" }}>TEAM PADDOCK</strong>
-            <div className="mono muted" style={{ fontSize: 10 }}>
-              {teams.length} REGISTERED TEAMS · {filtered.length} DISPLAYED
+            <h2 className="font-digital text-base font-extrabold m-0 tracking-wider text-[#292929]">
+              ROBOTICS TEAMS DIRECTORY ({teams.length})
+            </h2>
+            <div className="font-mono text-[10px] text-[#A3A3A3] font-bold">
+              REGISTERED LINE-FOLLOWER COMPETITORS · NIRMAN 6.0
             </div>
           </div>
         </div>
 
-        {/* Search & Filter Controls */}
-        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          {/* Search Bar */}
-          <div style={{ position: "relative", minWidth: 220 }}>
-            <Search
-              size={14}
-              color="#6c84a0"
-              style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }}
-            />
+        {/* Search & Filter Buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3A3A3]" />
             <input
               type="text"
-              placeholder="Search team, code, college..."
+              placeholder="Search team or college..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="field"
-              style={{ paddingLeft: 34, height: 36, fontSize: 12 }}
+              className="bg-[#FFF9F3] border-2 border-[#292929] text-[#292929] font-mono text-xs pl-8 pr-3 py-1.5 rounded shadow-[2px_2px_0px_#292929] focus:outline-none focus:border-[#FF8A32] w-64"
             />
           </div>
 
-          {/* Status Filters */}
-          <div style={{ display: "flex", gap: 6 }}>
-            {["all", "finished", "registered", "running"].map((st) => (
+          <div className="flex items-center gap-1">
+            {["all", "registered", "running", "finished"].map((f) => (
               <button
-                key={st}
-                onClick={() => setFilter(st)}
-                className={`gcc-tab-btn ${filter === st ? "active" : ""}`}
-                style={{ fontSize: 11, padding: "6px 12px", textTransform: "uppercase" }}
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
+                className={`font-mono text-xs uppercase font-bold px-2.5 py-1 rounded border-2 transition-all cursor-pointer ${
+                  filter === f
+                    ? "bg-[#FF8A32] text-[#292929] border-[#292929] shadow-[2px_2px_0_#292929]"
+                    : "bg-[#FFF9F3] text-[#292929] border-[#292929] hover:bg-[#F5D9C0]"
+                }`}
               >
-                {st}
+                {f}
               </button>
             ))}
           </div>
         </div>
-      </div>
+      </Panel>
 
-      {/* ── Teams Cards Grid ── */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: 16,
-        }}
-      >
+      {/* ── Team Cards Grid ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((t) => {
           const isRunning = t.id === activeTeamId || t.status === "running";
           const isFinished = t.status === "finished";
 
           return (
-            <div
+            <Panel
               key={t.id}
-              className="gcc-card"
-              style={{
-                padding: "18px 20px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: 14,
-                borderColor: isRunning ? "rgba(0, 240, 255, 0.6)" : undefined,
-                boxShadow: isRunning ? "0 0 25px rgba(0, 240, 255, 0.2)" : undefined,
-              }}
+              variant={isRunning ? "racing" : isFinished ? "orange" : "default"}
+              padding="default"
+              className="gcc-brutal-box flex flex-col justify-between gap-4"
             >
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                  <span
-                    className="digital"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: "#ff6a00",
-                      padding: "2px 8px",
-                      borderRadius: 6,
-                      background: "rgba(255, 106, 0, 0.12)",
-                      border: "1px solid rgba(255, 106, 0, 0.3)",
-                    }}
-                  >
+                <div className="flex justify-between items-start gap-2 mb-2">
+                  <span className="font-mono text-xs font-black text-[#292929] px-2 py-0.5 bg-[#F5D9C0] border border-[#292929] shadow-[1px_1px_0_#292929] rounded">
                     {t.code}
                   </span>
-
                   <span
-                    className="mono"
-                    style={{
-                      fontSize: 10,
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                      background: isRunning
-                        ? "rgba(0, 255, 136, 0.15)"
+                    className={`gcc-arcade-tag ${
+                      isRunning
+                        ? "bg-[#FF8A32] text-[#292929]"
                         : isFinished
-                        ? "rgba(0, 240, 255, 0.12)"
-                        : "rgba(45, 75, 110, 0.25)",
-                      color: isRunning ? "#00ff88" : isFinished ? "#00f0ff" : "#8da3be",
-                      border: `1px solid ${
-                        isRunning
-                          ? "rgba(0, 255, 136, 0.4)"
-                          : isFinished
-                          ? "rgba(0, 240, 255, 0.3)"
-                          : "rgba(45, 75, 110, 0.3)"
-                      }`,
-                    }}
+                        ? "bg-[#FFB36B] text-[#292929]"
+                        : "bg-[#E8E8E8] text-[#292929]"
+                    }`}
                   >
-                    {isRunning ? "● RACING" : t.status.toUpperCase()}
+                    {isRunning ? "RACING" : t.status.toUpperCase()}
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: "#ffffff", margin: "0 0 4px" }}>
-                  {t.name}
-                </h3>
-                <div className="mono muted" style={{ fontSize: 11 }}>
-                  {t.college}
+                <h3 className="font-bold text-base text-[#292929]">{t.name}</h3>
+                <div className="font-mono text-xs text-[#A3A3A3] mt-1 font-medium">
+                  {t.college || "Independent Robotics Entry"}
                 </div>
               </div>
 
-              {/* Robot Specifications Preview */}
-              <div
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: 10,
-                  background: "rgba(6, 12, 20, 0.7)",
-                  border: "1px solid rgba(45, 75, 110, 0.25)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  fontSize: 11,
-                }}
-              >
-                <div>
-                  <div className="mono muted" style={{ fontSize: 9 }}>
-                    BEST LAP TIME
-                  </div>
-                  <div className="digital" style={{ fontSize: 16, color: "#00f0ff", fontWeight: 700 }}>
-                    {fmt(t.best_time_ms)}
-                  </div>
-                </div>
-
-                <div style={{ textAlign: "right" }}>
-                  <div className="mono muted" style={{ fontSize: 9 }}>
-                    CHASSIS / SENSORS
-                  </div>
-                  <div className="mono" style={{ fontSize: 10, color: "#fff" }}>
-                    Optical 8x Array
-                  </div>
-                </div>
+              {/* Timing Metric Footer */}
+              <div className="border-t-2 border-[#292929] pt-3 flex justify-between items-center bg-[#FFF9F3] -mx-5 -mb-5 p-3 px-5 mt-2 rounded-b">
+                <span className="font-mono text-[10px] text-[#A3A3A3] uppercase tracking-wider font-bold">
+                  OFFICIAL BEST LAP
+                </span>
+                <span className="font-digital text-base font-bold text-[#FF8A32]">
+                  {fmt(t.best_time_ms)}
+                </span>
               </div>
-            </div>
+            </Panel>
           );
         })}
       </div>

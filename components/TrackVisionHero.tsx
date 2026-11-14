@@ -377,25 +377,27 @@ export default function TrackVisionHero({
           justifyContent: "center",
         }}
       >
-        {/* Category Badge */}
+        {/* Category Badge — NeoBrutalism */}
         <div
           style={{
             display: "inline-flex",
             alignItems: "center",
             gap: 7,
-            padding: "4px 10px",
-            borderRadius: 6,
-            background: "rgba(255, 170, 0, 0.12)",
-            border: "1px solid rgba(255, 170, 0, 0.35)",
-            color: "#ffaa00",
+            padding: "5px 12px",
+            borderRadius: 4,
+            background: "#ffaa00",
+            border: "2px solid #000000",
+            boxShadow: "2px 2px 0px #000000",
+            color: "#000000",
             fontFamily: "var(--font-mono)",
             fontSize: 10,
+            fontWeight: 800,
             letterSpacing: "0.16em",
-            marginBottom: 10,
+            marginBottom: 12,
             alignSelf: "flex-start",
           }}
         >
-          <Zap size={12} color="#ffaa00" />
+          <Zap size={12} color="#000000" />
           <span>ROBOTICS TIMING & TELEMETRY PROTOCOL</span>
         </div>
 
@@ -414,7 +416,7 @@ export default function TrackVisionHero({
           }}
         >
           TRACK{" "}
-          <span style={{ color: "#ff6a00", textShadow: "0 0 40px rgba(255, 106, 0, 0.7)" }}>
+          <span style={{ color: "#ff5500", textShadow: "0 0 40px rgba(255, 85, 0, 0.7)" }}>
             VISION
           </span>
         </h1>
@@ -434,7 +436,7 @@ export default function TrackVisionHero({
           server-recorded split timestamps, sub-millisecond precision, and live broadcast synchronization.
         </p>
 
-        {/* Action Buttons */}
+        {/* Action Buttons — NeoBrutalism */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
           <button
             onClick={handleScrollToArena}
@@ -447,22 +449,28 @@ export default function TrackVisionHero({
           <Link
             href="/admin"
             className="btn"
-            style={{ padding: "8px 16px", fontSize: 12, gap: 7, background: "rgba(10, 20, 34, 0.75)", border: "1px solid rgba(0, 240, 255, 0.35)" }}
+            style={{
+              padding: "8px 16px",
+              fontSize: 12,
+              gap: 7,
+              background: "#0d1522",
+              border: "2px solid #000000",
+              boxShadow: "3px 3px 0px #000000",
+              color: "#00f0ff",
+            }}
           >
             <Shield size={14} color="#00f0ff" /> Launch Console
           </Link>
         </div>
 
-        {/* ── ALL RACE CONTROL OPTIONS (Integrated Directly on the Animation Video) ── */}
+        {/* ── ALL RACE CONTROL OPTIONS (NeoBrutalism Arcade Dock) ── */}
         <div
           style={{
-            background: "rgba(6, 12, 22, 0.82)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            border: "1px solid rgba(45, 75, 110, 0.45)",
-            borderRadius: 12,
-            padding: "10px 12px",
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            background: "#0b111a",
+            border: "2.5px solid #000000",
+            borderRadius: 4,
+            padding: "12px 14px",
+            boxShadow: "5px 5px 0px #000000",
           }}
         >
           <div
@@ -472,6 +480,7 @@ export default function TrackVisionHero({
               color: "#ffaa00",
               letterSpacing: "0.16em",
               marginBottom: 8,
+              fontWeight: 800,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -492,7 +501,7 @@ export default function TrackVisionHero({
             }}
           >
             {[
-              { id: "live" as GccTab, label: "Live Arena", sub: "Live Timing", icon: Radio, color: "#ff6a00" },
+              { id: "live" as GccTab, label: "Live Arena", sub: "Live Timing", icon: Radio, color: "#ff5500" },
               { id: "overview" as GccTab, label: "Overview", sub: "Telemetry", icon: Activity, color: "#00f0ff" },
               { id: "teams" as GccTab, label: "Teams", sub: "16 Squads", icon: Users, color: "#00ff88" },
               { id: "leaderboard" as GccTab, label: "Leaderboard", sub: "Standings", icon: Award, color: "#ffaa00" },
@@ -507,16 +516,17 @@ export default function TrackVisionHero({
                   onClick={() => (onSelectTab ? onSelectTab(item.id) : handleScrollToArena())}
                   className="gcc-card"
                   style={{
-                    padding: "6px 8px",
+                    padding: "7px 10px",
                     display: "flex",
                     alignItems: "center",
                     gap: 7,
-                    background: "rgba(10, 18, 30, 0.8)",
-                    border: `1px solid ${item.color}35`,
-                    borderRadius: 7,
+                    background: "#0d1522",
+                    border: "1.5px solid #000000",
+                    borderRadius: 4,
+                    boxShadow: "2px 2px 0px #000000",
                     cursor: "pointer",
                     textAlign: "left",
-                    transition: "all 0.16s ease",
+                    transition: "all 0.15s ease",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = item.color;

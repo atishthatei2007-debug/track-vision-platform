@@ -67,24 +67,39 @@ export default function InteractiveBotInspector() {
   return (
     <section style={{ marginTop: 28 }}>
       <div
-        className="panel hud-panel"
+        className="hud-panel"
         style={{
           padding: 24,
-          background: "radial-gradient(ellipse at center, rgba(10, 20, 36, 0.85) 0%, rgba(4, 8, 14, 0.95) 100%)",
-          border: "1px solid rgba(0, 240, 255, 0.35)",
+          background: "#0b111a",
+          border: "2.5px solid #000000",
+          borderRadius: 4,
+          boxShadow: "5px 5px 0px #000000",
         }}
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.2em" }}>
+            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.2em", fontWeight: 700 }}>
               TELEMETRY & HARDWARE ANATOMY
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, margin: "4px 0 0", display: "flex", alignItems: "center", gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "4px 0 0", display: "flex", alignItems: "center", gap: 10, letterSpacing: "0.04em" }}>
               <Eye size={20} color="#00f0ff" /> Interactive Bot Subsystem Inspector
             </h2>
           </div>
-          <span className="pill" style={{ color: selectedSubsystem.accent, borderColor: selectedSubsystem.accent }}>
+          <span
+            className="mono"
+            style={{
+              padding: "4px 10px",
+              background: selectedSubsystem.accent,
+              color: "#000000",
+              border: "1.5px solid #000000",
+              borderRadius: 3,
+              boxShadow: "2px 2px 0px #000000",
+              fontWeight: 800,
+              fontSize: 11,
+              letterSpacing: "0.08em",
+            }}
+          >
             {selectedSubsystem.category}
           </span>
         </div>
@@ -103,9 +118,10 @@ export default function InteractiveBotInspector() {
             style={{
               position: "relative",
               height: 380,
-              borderRadius: 14,
-              background: "radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, rgba(6, 12, 22, 0.8) 70%)",
-              border: "1px solid rgba(45, 75, 110, 0.4)",
+              borderRadius: 4,
+              background: "#080e18",
+              border: "2px solid #000000",
+              boxShadow: "4px 4px 0px #000000",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -179,16 +195,16 @@ export default function InteractiveBotInspector() {
                     left: `${sub.coords.x}%`,
                     top: `${sub.coords.y}%`,
                     transform: "translate(-50%, -50%)",
-                    width: isSelected ? 28 : 22,
-                    height: isSelected ? 28 : 22,
-                    borderRadius: "50%",
+                    width: isSelected ? 30 : 24,
+                    height: isSelected ? 30 : 24,
+                    borderRadius: 4,
                     background: sub.accent,
-                    border: "2px solid #fff",
-                    boxShadow: `0 0 ${isSelected ? "20px" : "10px"} ${sub.accent}`,
+                    border: "2px solid #000000",
+                    boxShadow: isSelected ? "3px 3px 0px #000000" : "2px 2px 0px #000000",
                     cursor: "pointer",
                     display: "grid",
                     placeItems: "center",
-                    transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                    transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
                     zIndex: 10,
                   }}
                   title={sub.name}
@@ -197,8 +213,8 @@ export default function InteractiveBotInspector() {
                     style={{
                       width: 6,
                       height: 6,
-                      borderRadius: "50%",
-                      background: "#04080e",
+                      borderRadius: 1,
+                      background: "#000000",
                     }}
                   />
                 </button>
@@ -206,33 +222,35 @@ export default function InteractiveBotInspector() {
             })}
           </div>
 
-          {/* Right: Selected Subsystem Detail Card */}
+          {/* Right: Selected Subsystem Detail Card — NeoBrutalism */}
           <div
             style={{
               padding: 22,
-              borderRadius: 14,
-              background: "rgba(8, 16, 28, 0.8)",
-              border: `1px solid ${selectedSubsystem.accent}55`,
-              boxShadow: `0 8px 32px -10px ${selectedSubsystem.accent}33`,
-              transition: "border 0.3s ease, box-shadow 0.3s ease",
+              borderRadius: 4,
+              background: "#0d1522",
+              border: "2.5px solid #000000",
+              boxShadow: "4px 4px 0px #000000",
+              transition: "all 0.15s ease",
             }}
           >
-            <div className="mono" style={{ fontSize: 11, color: selectedSubsystem.accent, letterSpacing: "0.15em", marginBottom: 6 }}>
+            <div className="mono" style={{ fontSize: 11, color: selectedSubsystem.accent, letterSpacing: "0.15em", marginBottom: 6, fontWeight: 700 }}>
               {selectedSubsystem.category} // ANATOMY
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#fff" }}>
+            <h3 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#fff" }}>
               {selectedSubsystem.name}
             </h3>
             <div
               className="mono"
               style={{
                 fontSize: 12,
-                color: selectedSubsystem.accent,
-                background: "rgba(5, 11, 20, 0.7)",
+                fontWeight: 700,
+                color: "#f0f6ff",
+                background: "#080e18",
                 padding: "8px 12px",
-                borderRadius: 8,
+                borderRadius: 4,
                 marginTop: 12,
-                border: "1px solid rgba(45, 75, 110, 0.3)",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
               }}
             >
               {selectedSubsystem.specs}
@@ -242,7 +260,7 @@ export default function InteractiveBotInspector() {
               {selectedSubsystem.description}
             </p>
 
-            {/* Quick Switch Subsystem Buttons */}
+            {/* Quick Switch Subsystem Buttons — Arcade Style */}
             <div style={{ marginTop: 20, display: "flex", gap: 6, flexWrap: "wrap" }}>
               {SUBSYSTEMS.map((s) => (
                 <button
@@ -251,13 +269,16 @@ export default function InteractiveBotInspector() {
                   onClick={() => setSelectedSubsystem(s)}
                   style={{
                     padding: "6px 12px",
-                    borderRadius: 6,
-                    background: selectedSubsystem.id === s.id ? `${s.accent}22` : "rgba(10, 18, 30, 0.6)",
-                    border: `1px solid ${selectedSubsystem.id === s.id ? s.accent : "rgba(45, 75, 110, 0.3)"}`,
-                    color: selectedSubsystem.id === s.id ? "#fff" : "#8da3be",
+                    borderRadius: 4,
+                    background: selectedSubsystem.id === s.id ? s.accent : "#080e18",
+                    border: "2px solid #000000",
+                    boxShadow: "2px 2px 0px #000000",
+                    color: selectedSubsystem.id === s.id ? "#000000" : "#8da3be",
                     fontFamily: "var(--font-mono)",
-                    fontSize: 10,
+                    fontSize: 11,
+                    fontWeight: 700,
                     cursor: "pointer",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   {s.id.toUpperCase()}

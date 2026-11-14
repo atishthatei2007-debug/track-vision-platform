@@ -78,14 +78,16 @@ export default function NirmanRulebookFaq() {
 
   return (
     <section id="nirman-intel" style={{ marginTop: 28 }}>
-      {/* Event Metadata & Rulebook CTA Strip */}
+      {/* Event Metadata & Rulebook CTA Strip — NeoBrutalism */}
       <div
-        className="panel hud-panel"
+        className="hud-panel"
         style={{
           padding: 24,
           marginBottom: 20,
-          background:
-            "radial-gradient(circle at 90% 10%, rgba(0, 240, 255, 0.08), transparent 45%), var(--bg-card)",
+          background: "#0b111a",
+          border: "2.5px solid #000000",
+          borderRadius: 4,
+          boxShadow: "5px 5px 0px #000000",
         }}
       >
         <div
@@ -99,17 +101,18 @@ export default function NirmanRulebookFaq() {
           }}
         >
           <div>
-            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.22em", color: "#ffaa00" }}>
+            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.22em", color: "#ffaa00", fontWeight: 700 }}>
               SIPC // SILICON UNIVERSITY // NIRMAN 6.0
             </div>
             <h2
               style={{
                 fontSize: 24,
                 margin: "4px 0 0",
-                fontWeight: 700,
+                fontWeight: 800,
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
+                letterSpacing: "0.04em",
               }}
             >
               <Sparkles size={22} color="#00f0ff" /> Official Line Follower Rule Book
@@ -117,34 +120,43 @@ export default function NirmanRulebookFaq() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span className="pill" style={{ borderColor: "#ffaa00", color: "#ffc857" }}>
-              <Trophy size={12} /> UPTO ₹15,000 PRIZE POOL
+            <span
+              className="mono"
+              style={{
+                padding: "6px 12px",
+                background: "#ffaa00",
+                color: "#000000",
+                border: "2px solid #000000",
+                borderRadius: 4,
+                boxShadow: "2px 2px 0px #000000",
+                fontWeight: 800,
+                fontSize: 11,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Trophy size={14} /> UPTO ₹15,000 PRIZE POOL
             </span>
-            <MagneticButton
+            <button
               type="button"
               onClick={() => setRulebookOpen(true)}
-              className="hud-chamfer"
+              className="btn btn-primary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
                 padding: "10px 20px",
-                background: "linear-gradient(135deg, #00f0ff 0%, #00a8ff 100%)",
-                color: "#04080e",
-                border: "none",
-                fontFamily: "var(--font-mono)",
                 fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: "0.08em",
                 cursor: "pointer",
               }}
             >
               <BookOpen size={15} /> OPEN OFFICIAL RULE BOOK
-            </MagneticButton>
+            </button>
           </div>
         </div>
 
-        {/* Spec Grid */}
+        {/* Spec Grid — NeoBrutalist Metric Cards */}
         <div
           style={{
             display: "grid",
@@ -157,15 +169,16 @@ export default function NirmanRulebookFaq() {
               key={spec.label}
               style={{
                 padding: "12px 14px",
-                borderRadius: 10,
-                background: "rgba(6, 13, 24, 0.72)",
-                border: "1px solid rgba(45, 75, 110, 0.35)",
+                borderRadius: 4,
+                background: "#0d1522",
+                border: "2px solid #000000",
+                boxShadow: "3px 3px 0px #000000",
               }}
             >
-              <div className="mono muted" style={{ fontSize: 10, letterSpacing: "0.14em" }}>
+              <div className="mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "#00f0ff", fontWeight: 700 }}>
                 {spec.label}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#f0f6ff", marginTop: 4 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#f0f6ff", marginTop: 4 }}>
                 {spec.value}
               </div>
             </div>
@@ -180,12 +193,12 @@ export default function NirmanRulebookFaq() {
             gap: 12,
             marginTop: 18,
             paddingTop: 14,
-            borderTop: "1px solid rgba(45, 75, 110, 0.3)",
+            borderTop: "2px solid #000000",
             flexWrap: "wrap",
             fontSize: 12,
           }}
         >
-          <span className="mono muted" style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
+          <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: "#00ff88", display: "flex", alignItems: "center", gap: 6 }}>
             <Users size={13} color="#00ff88" /> EVENT COORDINATORS:
           </span>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -197,14 +210,16 @@ export default function NirmanRulebookFaq() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "rgba(37, 211, 102, 0.12)",
-                border: "1px solid rgba(37, 211, 102, 0.35)",
-                color: "#25d366",
+                padding: "5px 12px",
+                borderRadius: 4,
+                background: "#25d366",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
+                color: "#000000",
                 textDecoration: "none",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
+                fontWeight: 700,
               }}
             >
               <MessageCircle size={12} /> WhatsApp (Atish)
@@ -215,14 +230,16 @@ export default function NirmanRulebookFaq() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "rgba(0, 240, 255, 0.1)",
-                border: "1px solid rgba(0, 240, 255, 0.35)",
-                color: "#7cefff",
+                padding: "5px 12px",
+                borderRadius: 4,
+                background: "#00f0ff",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
+                color: "#000000",
                 textDecoration: "none",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
+                fontWeight: 700,
               }}
             >
               <Phone size={12} /> Call Atish: 9078362710
@@ -233,14 +250,16 @@ export default function NirmanRulebookFaq() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "rgba(45, 75, 110, 0.25)",
-                border: "1px solid rgba(45, 75, 110, 0.4)",
+                padding: "5px 12px",
+                borderRadius: 4,
+                background: "#0d1522",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
                 color: "#c8d6e5",
                 textDecoration: "none",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
+                fontWeight: 700,
               }}
             >
               <Phone size={12} /> SIPC: 8249454989
@@ -251,14 +270,16 @@ export default function NirmanRulebookFaq() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "rgba(45, 75, 110, 0.25)",
-                border: "1px solid rgba(45, 75, 110, 0.4)",
+                padding: "5px 12px",
+                borderRadius: 4,
+                background: "#0d1522",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
                 color: "#c8d6e5",
                 textDecoration: "none",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
+                fontWeight: 700,
               }}
             >
               <Phone size={12} /> SIPC: 7682040823
@@ -269,14 +290,16 @@ export default function NirmanRulebookFaq() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
-                padding: "4px 10px",
-                borderRadius: 6,
-                background: "rgba(255, 170, 0, 0.1)",
-                border: "1px solid rgba(255, 170, 0, 0.35)",
-                color: "#ffc857",
+                padding: "5px 12px",
+                borderRadius: 4,
+                background: "#ffaa00",
+                border: "2px solid #000000",
+                boxShadow: "2px 2px 0px #000000",
+                color: "#000000",
                 textDecoration: "none",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
+                fontWeight: 700,
               }}
             >
               <Mail size={12} /> nirman@silicon.ac.in
@@ -285,21 +308,31 @@ export default function NirmanRulebookFaq() {
         </div>
       </div>
 
-      {/* Race-Day FAQs Accordion */}
-      <div className="panel hud-panel" style={{ padding: 22 }}>
+      {/* Race-Day FAQs Accordion — NeoBrutalism */}
+      <div
+        className="hud-panel"
+        style={{
+          padding: 22,
+          background: "#0b111a",
+          border: "2.5px solid #000000",
+          borderRadius: 4,
+          boxShadow: "5px 5px 0px #000000",
+        }}
+      >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.18em" }}>
+            <div className="muted mono" style={{ fontSize: 10, letterSpacing: "0.18em", fontWeight: 700 }}>
               COMPETITOR BRIEFING
             </div>
             <h2
               style={{
                 fontSize: 22,
                 margin: "4px 0 0",
-                fontWeight: 700,
+                fontWeight: 800,
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
+                letterSpacing: "0.04em",
               }}
             >
               <HelpCircle size={20} color="#ffaa00" /> Official Rules & FAQs
@@ -315,11 +348,12 @@ export default function NirmanRulebookFaq() {
               <div
                 key={item.q}
                 style={{
-                  borderRadius: 12,
-                  background: isOpen ? "rgba(12, 22, 38, 0.9)" : "rgba(7, 14, 24, 0.7)",
-                  border: `1px solid ${isOpen ? "rgba(0, 240, 255, 0.35)" : "rgba(45, 75, 110, 0.3)"}`,
+                  borderRadius: 4,
+                  background: isOpen ? "#111b2c" : "#0d1522",
+                  border: "2px solid #000000",
+                  boxShadow: isOpen ? "4px 4px 0px #00f0ff" : "3px 3px 0px #000000",
                   overflow: "hidden",
-                  transition: "border-color 0.2s ease",
+                  transition: "all 0.15s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
                 <button
@@ -338,11 +372,11 @@ export default function NirmanRulebookFaq() {
                     cursor: "pointer",
                     textAlign: "left",
                     fontSize: 14,
-                    fontWeight: 600,
+                    fontWeight: 700,
                   }}
                 >
                   <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span className="mono" style={{ fontSize: 11, color: "#00f0ff" }}>
+                    <span className="mono" style={{ fontSize: 11, color: "#00f0ff", fontWeight: 700 }}>
                       0{idx + 1}
                     </span>
                     {item.q}
@@ -411,15 +445,17 @@ export default function NirmanRulebookFaq() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.96, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="panel hud-panel"
+              className="hud-panel"
               style={{
                 width: "100%",
                 maxWidth: 1100,
                 maxHeight: "90vh",
                 overflow: "hidden",
                 padding: 0,
-                background: "#060c18",
-                border: "1px solid rgba(0, 240, 255, 0.5)",
+                background: "#080e18",
+                border: "3px solid #000000",
+                boxShadow: "8px 8px 0px #000000",
+                borderRadius: 4,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -430,16 +466,16 @@ export default function NirmanRulebookFaq() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  padding: "18px 26px",
-                  background: "rgba(9, 17, 30, 0.95)",
-                  borderBottom: "1px solid rgba(45, 75, 110, 0.4)",
+                  padding: "16px 24px",
+                  background: "#0d1522",
+                  borderBottom: "2px solid #000000",
                 }}
               >
                 <div>
-                  <div className="mono" style={{ fontSize: 10, color: "#ffaa00", letterSpacing: "0.22em" }}>
+                  <div className="mono" style={{ fontSize: 10, color: "#ffaa00", letterSpacing: "0.22em", fontWeight: 700 }}>
                     SILICON INNOVATION & PROMOTION CELL (SIPC) · 2026-27
                   </div>
-                  <h3 style={{ fontSize: 22, fontWeight: 700, margin: "2px 0 0", display: "flex", alignItems: "center", gap: 10 }}>
+                  <h3 style={{ fontSize: 20, fontWeight: 800, margin: "2px 0 0", display: "flex", alignItems: "center", gap: 10 }}>
                     <ShieldCheck size={20} color="#00ff88" /> NIRMAN 6.0 Line Follower Rule Book
                   </h3>
                 </div>
@@ -450,13 +486,15 @@ export default function NirmanRulebookFaq() {
                   style={{
                     width: 36,
                     height: 36,
-                    borderRadius: 8,
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    color: "#f0f6ff",
+                    borderRadius: 4,
+                    background: "#ff2a55",
+                    border: "2px solid #000000",
+                    boxShadow: "2px 2px 0px #000000",
+                    color: "#ffffff",
                     display: "grid",
                     placeItems: "center",
                     cursor: "pointer",
+                    fontWeight: 800,
                   }}
                 >
                   <X size={18} />
@@ -473,7 +511,7 @@ export default function NirmanRulebookFaq() {
                 }}
               >
                 {/* Left: Tabbed Sections */}
-                <div style={{ padding: "22px 26px", borderRight: "1px solid rgba(45, 75, 110, 0.35)", overflowY: "auto" }}>
+                <div style={{ padding: "22px 26px", borderRight: "2px solid #000000", overflowY: "auto" }}>
                   {/* Tab Strip */}
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
                     {[
@@ -490,10 +528,11 @@ export default function NirmanRulebookFaq() {
                         onClick={() => setActiveTab(tab.id as WorkspaceTab)}
                         style={{
                           padding: "8px 14px",
-                          borderRadius: 8,
-                          background: activeTab === tab.id ? "rgba(0, 240, 255, 0.18)" : "rgba(10, 18, 30, 0.6)",
-                          border: `1px solid ${activeTab === tab.id ? "rgba(0, 240, 255, 0.6)" : "rgba(45, 75, 110, 0.3)"}`,
-                          color: activeTab === tab.id ? "#7cefff" : "#8da3be",
+                          borderRadius: 4,
+                          background: activeTab === tab.id ? "#ff5500" : "#0d1522",
+                          border: "2px solid #000000",
+                          boxShadow: "2px 2px 0px #000000",
+                          color: activeTab === tab.id ? "#000000" : "#8da3be",
                           fontFamily: "var(--font-mono)",
                           fontSize: 11,
                           fontWeight: 700,

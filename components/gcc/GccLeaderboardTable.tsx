@@ -10,6 +10,8 @@ import {
   Trophy,
   Zap,
 } from "lucide-react";
+import { Panel } from "@/components/ui/panel";
+import { Button } from "@/components/ui/button";
 
 type Team = {
   id: string;
@@ -57,212 +59,132 @@ export default function GccLeaderboardTable({
   }, [sorted, filterPodiumOnly]);
 
   return (
-    <div style={{ display: "grid", gap: 20 }}>
-      {/* ── Header Card ── */}
-      <div
-        className="gcc-card"
-        style={{
-          padding: "18px 22px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 16,
-        }}
+    <div className="grid gap-5">
+      {/* ── Motorsport Header Control Bar ── */}
+      <Panel
+        variant="default"
+        padding="default"
+        className="flex justify-between items-center flex-wrap gap-4"
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: "rgba(255, 190, 40, 0.12)",
-              border: "1px solid rgba(255, 190, 40, 0.4)",
-              display: "grid",
-              placeItems: "center",
-            }}
-          >
-            <Trophy size={18} color="#ffbe28" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded bg-[#FF8A32] border-2 border-[#292929] shadow-[2px_2px_0px_#292929] flex items-center justify-center">
+            <Trophy size={18} color="#292929" />
           </div>
           <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, letterSpacing: "0.06em" }}>
-              OFFICIAL MOTORSPORT CLASSIFICATION
+            <h2 className="font-digital text-base font-extrabold m-0 tracking-wider text-[#292929]">
+              OFFICIAL MOTORSPORT TIMING // LEADERBOARD
             </h2>
-            <div className="mono muted" style={{ fontSize: 10 }}>
-              NIRMAN 6.0 LINE FOLLOWER LEADERBOARD · SUB-MILLISECOND TIMING
+            <div className="font-mono text-[10px] text-[#A3A3A3] font-bold">
+              SUB-MILLISECOND ESP32 CLOCK TIMESTAMPS · FASTEST LAP CRITERIA
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button
-            onClick={() => setFilterPodiumOnly(!filterPodiumOnly)}
-            className={`gcc-tab-btn ${filterPodiumOnly ? "active" : ""}`}
-            style={{ fontSize: 11, padding: "6px 12px" }}
+        <div className="flex items-center gap-2">
+          <Button
+            variant={filterPodiumOnly ? "racing" : "peach"}
+            size="sm"
+            onClick={() => setFilterPodiumOnly((v) => !v)}
+            className="text-xs"
           >
-            <Award size={13} color="#ffbe28" />
-            <span>{filterPodiumOnly ? "Showing Podium (Top 3)" : "Podium Only"}</span>
-          </button>
+            <Filter size={13} />
+            <span>{filterPodiumOnly ? "SHOWING PODIUM (TOP 3)" : "FILTER PODIUM"}</span>
+          </Button>
         </div>
-      </div>
+      </Panel>
 
-      {/* ── Timing Board Table ── */}
-      <div className="gcc-card" style={{ padding: "16px 20px", overflowX: "auto" }}>
-        {/* Table Column Header */}
-        <div
-          className="mono"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "55px 90px minmax(140px, 1.5fr) minmax(130px, 1fr) 110px 100px 110px",
-            gap: 12,
-            padding: "10px 14px",
-            fontSize: 10,
-            color: "#6c84a0",
-            letterSpacing: "0.12em",
-            borderBottom: "1px solid rgba(45, 75, 110, 0.35)",
-            minWidth: 720,
-          }}
-        >
+      {/* ── Timing Board Matrix ── */}
+      <div className="gcc-timing-board rounded-md overflow-hidden">
+        {/* Table Column Headers */}
+        <div className="gcc-timing-header grid grid-cols-[60px_1fr_120px_120px_100px] gap-3 px-4 py-3">
           <span>POS</span>
-          <span>CODE</span>
-          <span>TEAM</span>
-          <span>COLLEGE</span>
+          <span>COMPETITOR / INSTITUTION</span>
           <span>BEST LAP</span>
           <span>GAP TO P1</span>
           <span>STATUS</span>
         </div>
 
         {/* Rows */}
-        <div style={{ display: "grid", gap: 6, marginTop: 8, minWidth: 720 }}>
+        <div className="divide-y divide-[#E8E8E8]">
           {displayList.map((t, idx) => {
             const isP1 = idx === 0 && t.best_time_ms != null;
             const isP2 = idx === 1 && t.best_time_ms != null;
             const isP3 = idx === 2 && t.best_time_ms != null;
             const isRunning = t.id === activeTeamId || t.status === "running";
-            const delta = getDelta(t.best_time_ms, p1Time);
 
-            const rankBadgeColor = isP1
-              ? "#ffbe28"
+            const rowClass = isP1
+              ? "p1-row"
               : isP2
-              ? "#c8dcf0"
+              ? "p2-row"
               : isP3
-              ? "#dc8250"
-              : "#6c84a0";
+              ? "p3-row"
+              : "";
 
             return (
               <div
                 key={t.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "55px 90px minmax(140px, 1.5fr) minmax(130px, 1fr) 110px 100px 110px",
-                  gap: 12,
-                  alignItems: "center",
-                  padding: "12px 14px",
-                  borderRadius: 10,
-                  background: isP1
-                    ? "linear-gradient(90deg, rgba(255, 190, 40, 0.12), rgba(12, 20, 32, 0.5))"
-                    : isP2
-                    ? "linear-gradient(90deg, rgba(200, 220, 240, 0.08), rgba(12, 20, 32, 0.5))"
-                    : isP3
-                    ? "linear-gradient(90deg, rgba(220, 130, 80, 0.08), rgba(12, 20, 32, 0.5))"
-                    : "rgba(8, 14, 24, 0.6)",
-                  border: `1px solid ${
-                    isP1
-                      ? "rgba(255, 190, 40, 0.45)"
-                      : isRunning
-                      ? "rgba(0, 240, 255, 0.5)"
-                      : "rgba(45, 75, 110, 0.25)"
-                  }`,
-                  borderLeft: isP1
-                    ? "4px solid #ffbe28"
-                    : isP2
-                    ? "4px solid #c8dcf0"
-                    : isP3
-                    ? "4px solid #dc8250"
-                    : undefined,
-                  transition: "all 0.2s ease",
-                }}
+                className={`gcc-timing-row ${rowClass} grid grid-cols-[60px_1fr_120px_120px_100px] gap-3 px-4 py-3.5`}
               >
-                {/* Position */}
-                <span
-                  className="digital"
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 900,
-                    color: rankBadgeColor,
-                  }}
-                >
-                  P{idx + 1}
-                </span>
+                {/* Position Badge */}
+                <div className="flex items-center">
+                  <span
+                    className={`font-digital font-black text-sm px-2 py-0.5 border border-[#292929] shadow-[1px_1px_0_#292929] rounded ${
+                      isP1
+                        ? "bg-[#FF8A32] text-[#292929]"
+                        : isP2
+                        ? "bg-[#FFB36B] text-[#292929]"
+                        : isP3
+                        ? "bg-[#F5D9C0] text-[#292929]"
+                        : "bg-[#E8E8E8] text-[#292929]"
+                    }`}
+                  >
+                    #{idx + 1}
+                  </span>
+                </div>
 
-                {/* Team Code */}
-                <span
-                  className="digital"
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: "#ff6a00",
-                  }}
-                >
-                  {t.code}
-                </span>
-
-                {/* Team Name */}
-                <strong style={{ fontSize: 14, color: "#ffffff" }}>
-                  {t.name}
-                </strong>
-
-                {/* College */}
-                <span className="mono muted" style={{ fontSize: 12 }}>
-                  {t.college}
-                </span>
+                {/* Team Info */}
+                <div>
+                  <div className="font-bold text-sm text-[#292929] flex items-center gap-2">
+                    <span>{t.name}</span>
+                    <span className="font-mono text-[10px] text-[#FF8A32] font-bold">
+                      [{t.code}]
+                    </span>
+                  </div>
+                  <div className="font-mono text-[11px] text-[#A3A3A3] mt-0.5 font-medium">
+                    {t.college || "Independent Robotics"}
+                  </div>
+                </div>
 
                 {/* Best Lap */}
-                <span
-                  className="digital"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 800,
-                    color: isP1 ? "#ffbe28" : "#00f0ff",
-                  }}
-                >
-                  {fmt(t.best_time_ms)}
-                </span>
+                <div>
+                  <span className="font-digital font-bold text-sm text-[#FF8A32]">
+                    {fmt(t.best_time_ms)}
+                  </span>
+                </div>
 
                 {/* Gap to P1 */}
-                <span
-                  className="mono"
-                  style={{
-                    fontSize: 11,
-                    color: delta === "LEADER" ? "#ffbe28" : delta === "—" ? "#6c84a0" : "#ffaa00",
-                    fontWeight: delta === "LEADER" ? 700 : 400,
-                  }}
-                >
-                  {delta}
-                </span>
+                <div>
+                  <span
+                    className={`font-mono text-xs font-semibold ${
+                      getDelta(t.best_time_ms, p1Time) === "LEADER"
+                        ? "text-[#22c55e] font-black"
+                        : "text-[#A3A3A3]"
+                    }`}
+                  >
+                    {getDelta(t.best_time_ms, p1Time)}
+                  </span>
+                </div>
 
                 {/* Status */}
                 <div>
                   <span
-                    className="mono"
-                    style={{
-                      fontSize: 10,
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                      background: isRunning
-                        ? "rgba(0, 255, 136, 0.15)"
+                    className={`gcc-arcade-tag ${
+                      isRunning
+                        ? "bg-[#FF8A32] text-[#292929]"
                         : t.status === "finished"
-                        ? "rgba(0, 240, 255, 0.12)"
-                        : "rgba(45, 75, 110, 0.25)",
-                      color: isRunning ? "#00ff88" : t.status === "finished" ? "#00f0ff" : "#8da3be",
-                      border: `1px solid ${
-                        isRunning
-                          ? "rgba(0, 255, 136, 0.4)"
-                          : t.status === "finished"
-                          ? "rgba(0, 240, 255, 0.3)"
-                          : "rgba(45, 75, 110, 0.3)"
-                      }`,
-                    }}
+                        ? "bg-[#22c55e] text-white"
+                        : "bg-[#E8E8E8] text-[#292929]"
+                    }`}
                   >
                     {isRunning ? "RACING" : t.status.toUpperCase()}
                   </span>
